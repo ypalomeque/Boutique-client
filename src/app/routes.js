@@ -8,6 +8,7 @@ import Loadable from "./components/Loadable";
 import MatxLayout from "./components/MatxLayout/MatxLayout";
 
 import materialRoutes from "app/views/material-kit/MaterialRoutes";
+import { userRoute } from "./views/admin/users/UserRoute";
 
 // SESSION PAGES
 const NotFound = Loadable(lazy(() => import("app/views/sessions/NotFound")));
@@ -19,6 +20,10 @@ const AppEchart = Loadable(lazy(() => import("app/views/charts/echarts/AppEchart
 // DASHBOARD PAGE
 const Analytics = Loadable(lazy(() => import("app/views/dashboard/Analytics")));
 
+// NEW ROUTES
+
+
+
 const routes = [
   {
     element: (
@@ -28,7 +33,8 @@ const routes = [
     ),
     children: [
       ...materialRoutes,
-      // dashboard route
+      // dashboard route,
+      userRoute,
       { path: "/dashboard/default", element: <Analytics />, auth: authRoles.admin },
       // e-chart route
       { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor }

@@ -1,5 +1,5 @@
 export const navigations = [
-  { name: "Usuarios", path: "/dashboard/default", icon: "group" },
+  { name: "Usuarios", path: "/usuarios", icon: "group" },
   { name: "Pedidos", path: "/dashboard/default", icon: "real_estate_agent" },
   { name: "Ventas", path: "/dashboard/default", icon: "point_of_sale" },
   {

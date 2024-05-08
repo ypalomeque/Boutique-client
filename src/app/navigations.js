@@ -6,7 +6,7 @@ export const navigations = [
     name: "Stock",
     icon: "inventory",
     children: [
-      { name: "Productos", iconText: "SI", icon: 'post_add', path: "/session/signin" },
+      { name: "Producto", iconText: "SI", icon: 'post_add', path: "/productos" },
       { name: "Compras", iconText: "SU", icon: 'shopping_cart', path: "/session/signup" },
       { name: "Proveedores", iconText: "FP", icon: 'contact_phone', path: "/session/forgot-password" },
     ]
@@ -43,7 +43,7 @@ export const navigations = [
       {
         name: "Categorías", icon: 'border_color', path: "/session/signin",
         children: [
-          { name: "Categorías Para Productos", iconText: "SI", icon: 'post_add', path: "/session/signin", },
+          { name: "Categorías Para Producto", iconText: "SI", icon: 'post_add', path: "/session/signin", },
           { name: "Categorías Para Servicios", iconText: "SI", icon: 'post_add', path: "/session/signin", }
         ]
       },

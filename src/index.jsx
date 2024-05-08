@@ -7,6 +7,9 @@ import App from "./app/App";
 // third party style
 import "perfect-scrollbar/css/perfect-scrollbar.css";
 
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./app/styles/main.css";
+
 const root = createRoot(document.getElementById("root"));
 
 root.render(

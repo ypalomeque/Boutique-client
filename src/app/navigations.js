@@ -43,8 +43,8 @@ export const navigations = [
       {
         name: "Categorías", icon: 'border_color', path: "/session/signin",
         children: [
-          { name: "Categorías Para Producto", iconText: "SI", icon: 'post_add', path: "/session/signin", },
-          { name: "Categorías Para Servicios", iconText: "SI", icon: 'post_add', path: "/session/signin", }
+          { name: "Categorías Para Producto", iconText: "SI", icon: 'post_add', path: "/categoria/producto", },
+          { name: "Categorías Para Servicios", iconText: "SI", icon: 'post_add', path: "/categoria/servicio", }
         ]
       },
       { name: "Accesos", iconText: "SU", icon: 'manage_accounts', path: "/session/signup" },

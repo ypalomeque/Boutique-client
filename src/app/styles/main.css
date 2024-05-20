@@ -74,6 +74,21 @@ body {
 }
 
 /* ESTILOS MODIFOCADOS PARA LA TABLA */
+
+.stock-up>span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 15% !important;
+}
+
+.stock-down>span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 15% !important;
+}
+
 .stock-down>span>span {
     background-color: rgb(134, 2, 192) !important;
     color: #fff !important;

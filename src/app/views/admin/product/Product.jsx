@@ -22,9 +22,9 @@ import { Small } from "app/components/Typography";
 import SelectComponent from "app/components/select/SelectComponent";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { NumberFormatBase, NumericFormat } from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { BASE_URL_PROD, NO_IMAGE } from "app/utils/constant";
-import { Delete, Edit } from "@mui/icons-material";
+import { Delete, Edit, Padding } from "@mui/icons-material";
 
 const columns = [
   {
@@ -508,7 +508,12 @@ const Product = () => {
           enableRowSelection={true}
           enableSelectAll={true}
           isLoading={false}
-          renderRowActionMenuItems={null}
+          renderRowActionMenuItems={renderRowActionMenuItems}
+          columnPinning={{
+            left: ["mrt-row-expand", "mrt-row-select"],
+            right: ["mrt-row-actions"],
+            expanded: true
+          }}
         />
       </Grid>
       <ModalComponent open={isOpen} title={"Productos"} w100Modal={"w100Modal"}>

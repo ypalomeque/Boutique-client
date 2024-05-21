@@ -33,12 +33,17 @@ const Example = ({
   enableFacetedValues,
   enableColumnPinning,
   enableRowActions,
+  renderRowActions,
   renderDetailPanel,
   renderToolbarAlertBannerContent,
   enableSelectAll,
   enableRowSelection,
+  enableEditing,
   isLoading,
-  renderRowActionMenuItems
+  renderRowActionMenuItems,
+  positionCreatingRow,
+  enableExpanding,
+  columnPinning
 }) => {
   return (
     <MaterialReactTable
@@ -54,18 +59,23 @@ const Example = ({
       enableColumnPinning={enableColumnPinning}
       enableRowActions={enableRowActions}
       enableRowSelection={enableRowSelection}
+      enableEditing={enableEditing}
       enableSelectAll={enableSelectAll}
+      enableExpanding={enableExpanding}
+      createDisplayMode={"row"}
+      editDisplayMode={"row"}
       // enablePagination={false}
       renderToolbarAlertBannerContent={
         renderToolbarAlertBannerContent ? renderToolbarAlertBannerContent : null
       }
+      renderRowActions={renderRowActions ? renderRowActions : null}
       muiTableBodyRowProps={({ row }) => ({
         sx: {
           cursor: "pointer" //you might want to change the cursor too when adding an onClick
         }
       })}
       // HABILITAR Y DAR ESTILOS AL LOADING DE LA TABA
-      state={{ isLoading: isLoading }}
+      state={{ isLoading: isLoading, columnPinning: columnPinning ? columnPinning : null }}
       muiCircularProgressProps={{
         color: "secondary",
         thickness: 5,
@@ -79,11 +89,15 @@ const Example = ({
       initialState={{
         showColumnFilters: true,
         showGlobalFilter: true,
-        columnPinning: {
-          left: ["mrt-row-expand", "mrt-row-select"],
-          right: ["mrt-row-actions"]
-        }
+        columnPinning: columnPinning
+          ? {
+              left: ["mrt-row-expand", "mrt-row-select"],
+              right: ["mrt-row-actions"],
+              expanded: true
+            }
+          : null
       }}
+      getRowId={(row) => row.id}
       localization={MRT_Localization_ES}
       paginationDisplayMode={"pages"}
       //   positionToolbarAlertBanner={"bottom"}
@@ -95,7 +109,9 @@ const Example = ({
         variant: "outlined"
       }}
       renderDetailPanel={renderDetailPanel ? renderDetailPanel : null}
-      renderRowActionMenuItems={renderRowActionMenuItems}
+      renderRowActionMenuItems={renderRowActionMenuItems ? renderRowActionMenuItems : null}
+      positionCreatingRow={positionCreatingRow ? positionCreatingRow : null}
+      onCreatingRowSave={() => {}}
     />
   );
 };
@@ -116,7 +132,12 @@ const TableComponentProvider = ({
   enableSelectAll,
   enableRowSelection,
   isLoading,
-  renderRowActionMenuItems
+  renderRowActionMenuItems,
+  renderRowActions,
+  enableEditing,
+  positionCreatingRow,
+  enableExpanding,
+  columnPinning
 }) => {
   const theme = useTheme(); //replace with your theme/createTheme
   return (
@@ -140,6 +161,11 @@ const TableComponentProvider = ({
           renderToolbarAlertBannerContent={renderToolbarAlertBannerContent}
           isLoading={isLoading}
           renderRowActionMenuItems={renderRowActionMenuItems}
+          renderRowActions={renderRowActions}
+          enableEditing={enableEditing}
+          positionCreatingRow={positionCreatingRow}
+          enableExpanding={enableExpanding}
+          columnPinning={columnPinning}
         />
       </LocalizationProvider>
     </ThemeProvider>

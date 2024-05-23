@@ -89,7 +89,7 @@ const CategoryServices = () => {
         </IconButton>
       </Tooltip>
       <Tooltip title="Delete">
-        <IconButton color="error" onClick={() => () => {}}>
+        <IconButton color="error" onClick={() => () => { }}>
           <DeleteIcon />
         </IconButton>
       </Tooltip>
@@ -131,6 +131,7 @@ const CategoryServices = () => {
         positionCreatingRow={creatingRowIndex}
         enableExpanding={false}
         columnPinning={{ left: ["mrt-row-select", "mrt-row-actions"], right: [] }}
+
       />
     </Grid>
   );

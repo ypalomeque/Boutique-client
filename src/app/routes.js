@@ -11,6 +11,7 @@ import materialRoutes from "app/views/material-kit/MaterialRoutes";
 import { userRoute } from "./views/admin/user/UserRoute";
 import { ProductRoute } from "./views/admin/product/ProductRoute";
 import { CategoryByServicesRoute } from "./views/admin/categry/CategoryByServicesRoute";
+import { CategoryProductRoute } from "./views/admin/categoryProducts/CategoryProductRoute";
 
 // SESSION PAGES
 const NotFound = Loadable(lazy(() => import("app/views/sessions/NotFound")));
@@ -39,6 +40,7 @@ const routes = [
       userRoute,
       ProductRoute,
       CategoryByServicesRoute,
+      CategoryProductRoute,
       { path: "/dashboard/default", element: <Analytics />, auth: authRoles.admin },
       // e-chart route
       { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor }

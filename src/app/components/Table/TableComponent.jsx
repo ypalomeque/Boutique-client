@@ -43,10 +43,12 @@ const Example = ({
   renderRowActionMenuItems,
   positionCreatingRow,
   enableExpanding,
-  columnPinning
+  columnPinning,
+  enableColumnActions
 }) => {
   return (
     <MaterialReactTable
+      enableColumnActions={true}
       columns={columns}
       data={data ? data : []}
       enableColumnFilterModes={enableColumnFilterModes}
@@ -64,6 +66,7 @@ const Example = ({
       enableExpanding={enableExpanding}
       createDisplayMode={"row"}
       editDisplayMode={"row"}
+
       // enablePagination={false}
       renderToolbarAlertBannerContent={
         renderToolbarAlertBannerContent ? renderToolbarAlertBannerContent : null
@@ -91,10 +94,10 @@ const Example = ({
         showGlobalFilter: true,
         columnPinning: columnPinning
           ? {
-              left: ["mrt-row-expand", "mrt-row-select"],
-              right: ["mrt-row-actions"],
-              expanded: true
-            }
+            left: ["mrt-row-expand", "mrt-row-select"],
+            right: ["mrt-row-actions"],
+            expanded: true
+          }
           : null
       }}
       getRowId={(row) => row.id}
@@ -111,7 +114,7 @@ const Example = ({
       renderDetailPanel={renderDetailPanel ? renderDetailPanel : null}
       renderRowActionMenuItems={renderRowActionMenuItems ? renderRowActionMenuItems : null}
       positionCreatingRow={positionCreatingRow ? positionCreatingRow : null}
-      onCreatingRowSave={() => {}}
+      onCreatingRowSave={() => { }}
     />
   );
 };
@@ -119,6 +122,8 @@ const Example = ({
 const TableComponentProvider = ({
   columns,
   data,
+  enableColumnActions,
+
   enableColumnFilterModes,
   enableColumnOrdering,
   enableStickyHeader,
@@ -166,6 +171,8 @@ const TableComponentProvider = ({
           positionCreatingRow={positionCreatingRow}
           enableExpanding={enableExpanding}
           columnPinning={columnPinning}
+          enableColumnActions={enableColumnActions}
+
         />
       </LocalizationProvider>
     </ThemeProvider>

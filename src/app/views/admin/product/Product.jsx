@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { memo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -23,8 +23,14 @@ import SelectComponent from "app/components/select/SelectComponent";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { NumericFormat } from "react-number-format";
-import { BASE_URL_PROD, NO_IMAGE } from "app/utils/constant";
-import { Delete, Edit, Padding } from "@mui/icons-material";
+import { BASE_URL_DEV, BASE_URL_PROD, NO_IMAGE } from "app/utils/constant";
+import { Delete, Edit } from "@mui/icons-material";
+import { GetCategories } from "app/hooks/categories";
+import { deleteFileService, uploadFileService } from "app/services/filesService";
+import { GetProducts, SaveProduct, UpdateProduct } from "app/hooks/products";
+import moment from "moment-timezone";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { NotificationAlert } from "app/components/NotificationAlert/Notification";
 
 const columns = [
   {
@@ -71,7 +77,9 @@ const columns2 = [
         <img
           alt="Foto"
           height={30}
-          src={row.original.photo}
+          src={
+            row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
+          }
           loading="lazy"
           style={{ borderRadius: "50%" }}
         />
@@ -118,7 +126,7 @@ const columns2 = [
       //   })}
       // </Box>
       <Box>
-        {cell.getValue()?.toLocaleString?.("es", {
+        {cell.getValue()?.toLocaleString?.("es-CO", {
           style: "currency",
           currency: "COP",
           minimumFractionDigits: 0,
@@ -158,7 +166,7 @@ const columns2 = [
       //   })}
       // </Box>
       <Box>
-        {cell.getValue()?.toLocaleString?.("es", {
+        {cell.getValue()?.toLocaleString?.("es-CO", {
           style: "currency",
           currency: "COP",
           minimumFractionDigits: 0,
@@ -186,6 +194,7 @@ const columns2 = [
   },
   {
     accessorKey: "outputs", //hey a simple column for once
+    accessorFn: (row) => `${row.outputs == null ? 0 : row.state}`,
     header: "Salidas",
     size: 220,
     Cell: ({ cell }) => (
@@ -199,6 +208,7 @@ const columns2 = [
   },
   {
     accessorKey: "state", //hey a simple column for once
+    accessorFn: (row) => `${row.state == 1 ? "Activo" : "Inactivo"}`,
     header: "Estado",
     size: 200,
     Cell: ({ cell }) => (
@@ -235,125 +245,174 @@ const columns2 = [
   // }
 ];
 
-const renderDetailPanel = ({ row }) => {
-  return (
-    <Box
-      sx={{
-        alignItems: "center",
-        display: "flex",
-        justifyContent: "space-around",
-        left: "30px",
-        maxWidth: "1000px",
-        position: "sticky",
-        width: "100%"
-      }}
-    >
-      <img
-        alt="avatar"
-        height={200}
-        src={row.original.avatar}
-        loading="lazy"
-        style={{ borderRadius: "50%" }}
-      />
-      <Box sx={{ textAlign: "center" }}>
-        <Typography variant="h4">Signature Catch Phrase:</Typography>
-        <Typography variant="h1">&quot;{row.original.signatureCatchPhrase}&quot;</Typography>
-      </Box>
-    </Box>
-  );
-};
-
-const renderToolbarAlertBannerContent = ({ table }) => {
-  // console.log(table);
-  return (
-    <Box sx={{ display: "flex", gap: "1rem", p: "5px", alignItems: "center" }}>
-      <span>
-        {table.getSelectedRowModel().rows.length} de {data2?.length} fila(s) seleccionada(s)
-      </span>
-      <Box
-        component="span"
-        onClick={() => {
-          console.log(table.getSelectedRowModel().rows);
-        }}
-        sx={() => ({
-          background: "#ec85e6",
-          borderRadius: "50rem",
-          display: "flex",
-          color: "#fff",
-          maxWidth: "29ch",
-          p: ".30rem",
-          cursor: "pointer",
-          fontSize: "13px"
-        })}
-      >
-        <FontAwesomeIcon
-          style={{
-            marginRight: "2px",
-            paddingTop: "2px"
-          }}
-          icon={faTrashAlt}
-        />
-        Desea Eliminar Registros ?
-      </Box>
-    </Box>
-  );
-};
-
-const renderRowActionMenuItems = ({ closeMenu, row }) => [
-  <MenuItem
-    key={0}
-    onClick={() => {
-      console.log("Programando con el Maestro Exel", row.original);
-      // View profile logic...
-      closeMenu();
-    }}
-    sx={{ m: 0 }}
-  >
-    <ListItemIcon>
-      <Edit />
-    </ListItemIcon>
-    Editar Producto
-  </MenuItem>,
-  <MenuItem
-    key={1}
-    onClick={() => {
-      // Send email logic...
-      closeMenu();
-    }}
-    sx={{ m: 0 }}
-  >
-    <ListItemIcon>
-      <Delete />
-    </ListItemIcon>
-    Eliminar Producto
-  </MenuItem>
-];
 const Product = () => {
   const [spinner, setSpinner] = useState(false);
+  const [idEdit, setIdEdit] = useState("");
+  const [updateImgFlag, setUpdateImgFlag] = useState(false);
+  const [spinnerUpload, setSpinnerUpload] = useState(false);
   const [file, setFile] = useState(null);
   const [fileTemp, setFileTemp] = useState(null);
   const [fileName, setFileName] = useState(null);
+  const [fileNameTemp, setFileNameTemp] = useState(null);
   const [messageNamImage, setMessageNamImage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenImg, setIsOpenImg] = useState(false);
-  const modalProducts = () => {
+  const modalProducts = async () => {
+    if (fileNameTemp) {
+      try {
+        await deleteFileService(fileNameTemp);
+        setMessageNamImage("");
+        setFileNameTemp("");
+        setFileTemp(null);
+      } catch (error) {
+        console.error("Mostrando el error al tratar de eliminar una foto !!!");
+      }
+    }
     setIsOpen(!isOpen);
   };
-  const modalImg = () => {
+  const modalImg = async () => {
     setIsOpenImg(!isOpenImg);
   };
 
-  const options = [
-    {
-      label: "label 1",
-      value: "value 1",
-      dialCode: "dialCode 1"
-    },
-    {
-      label: "label 2",
-      value: "value 2",
-      dialCode: "dialCode 2"
-    }
+  const queryClient = useQueryClient();
+
+  const { data } = GetCategories();
+  const { data: products, isLoading: isLoadinProducts } = GetProducts();
+
+  const options = data
+    ?.filter((x) => x.type === 1)
+    ?.map((el) => {
+      return {
+        label: el.name,
+        value: el._id
+      };
+    });
+
+  const renderDetailPanel = ({ row }) => {
+    return (
+      <Box
+        sx={{
+          alignItems: "center",
+          display: "flex",
+          justifyContent: "space-around",
+          left: "30px",
+          maxWidth: "1000px",
+          position: "sticky",
+          width: "100%"
+        }}
+      >
+        <img
+          alt="avatar"
+          height={200}
+          src={
+            row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
+          }
+          loading="lazy"
+          style={{ borderRadius: "50%", width: "25%" }}
+          onClick={() => renderChangeImg(row.original)}
+        />
+        <Box sx={{ textAlign: "center" }}>
+          <Typography variant="h4">{row.original.name}</Typography>
+          <Typography variant="h6">{row.original.description}</Typography>
+        </Box>
+      </Box>
+    );
+  };
+
+  const renderToolbarAlertBannerContent = ({ table }) => {
+    // console.log(table);
+    return (
+      <Box sx={{ display: "flex", gap: "1rem", p: "5px", alignItems: "center" }}>
+        <span>
+          {table.getSelectedRowModel().rows.length} de {data2?.length} fila(s) seleccionada(s)
+        </span>
+        <Box
+          component="span"
+          onClick={() => {
+            console.log(table.getSelectedRowModel().rows);
+          }}
+          sx={() => ({
+            background: "#ec85e6",
+            borderRadius: "50rem",
+            display: "flex",
+            color: "#fff",
+            maxWidth: "29ch",
+            p: ".30rem",
+            cursor: "pointer",
+            fontSize: "13px"
+          })}
+        >
+          <FontAwesomeIcon
+            style={{
+              marginRight: "2px",
+              paddingTop: "2px"
+            }}
+            icon={faTrashAlt}
+          />
+          Desea Eliminar Registros ?
+        </Box>
+      </Box>
+    );
+  };
+
+  const renderRowActionMenuItems = ({ closeMenu, row }) => [
+    <MenuItem
+      key={0}
+      onClick={() => {
+        const {
+          _id,
+          name,
+          reference,
+          date,
+          category,
+          description,
+          state,
+          stock,
+          discount,
+          purchasePrice,
+          salePrice,
+          photo,
+          outputs
+        } = row.original;
+        productFormik.setValues({
+          _id,
+          name,
+          reference,
+          date,
+          category,
+          description,
+          state,
+          stock,
+          discount,
+          purchasePrice,
+          salePrice,
+          photo,
+          outputs
+        });
+        setIdEdit(_id);
+        modalProducts();
+        closeMenu();
+      }}
+      sx={{ m: 0 }}
+    >
+      <ListItemIcon>
+        <Edit />
+      </ListItemIcon>
+      Editar Producto
+    </MenuItem>,
+    <MenuItem
+      key={1}
+      onClick={() => {
+        // Send email logic...
+        closeMenu();
+      }}
+      sx={{ m: 0 }}
+    >
+      <ListItemIcon>
+        <Delete />
+      </ListItemIcon>
+      Eliminar Producto
+    </MenuItem>
   ];
 
   const optionsState = [
@@ -422,6 +481,53 @@ const Product = () => {
     }
   });
 
+  const mutationSaveProduct = useMutation({
+    mutationFn: SaveProduct,
+    onError: (error, variables, context) => {
+      let { message } = error.response.data;
+      // console.log("Mostrando error", variables);
+      // console.log("Mostrando error", context);
+      NotificationAlert("error", "Registro Producto", `${message}`);
+    },
+    onSuccess: (resp) => {
+      NotificationAlert("success", "Registro Producto", "Registro realizado con éxito.");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      clearData();
+      setFileTemp(null);
+      setTimeout(() => {
+        modalProducts();
+      }, 2500);
+    }
+  });
+
+  const mutationUpdateProduct = useMutation({
+    mutationFn: UpdateProduct,
+    onError: (error, variables, context) => {
+      let { message } = error.response.data;
+      console.log("Mostrando error", error, variables);
+      // console.log("Mostrando error", context);
+      NotificationAlert("error", "Actualización Producto", `${message}`);
+    },
+    onSuccess: (resp) => {
+      NotificationAlert("success", "Actualización Producto", "Registro Actualizado con éxito.");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      if (idEdit && updateImgFlag) {
+        modalImg();
+        setIdEdit(null);
+        setFileTemp(null);
+        setFileNameTemp(null);
+        fileNameTemp = null;
+        fileTemp = null;
+        setUpdateImgFlag(false);
+      } else {
+        modalProducts();
+        clearData();
+        setFileTemp(null);
+        setFileNameTemp(null);
+      }
+    }
+  });
+
   const productFormik = useFormik({
     initialValues: {
       date: null,
@@ -461,9 +567,37 @@ const Product = () => {
         .matches("^[0-9]+([,][0-9]+)?$", "Solo se admiten números positivos")
         .required("Este campo es requerido")
     }),
-
     onSubmit: async (values) => {
-      console.log("Mostrando valores ", values);
+      values.date = moment().tz("America/Bogota").format("YYYY-MM-DD");
+      values.purchasePrice = !values.purchasePrice.toString().includes(",")
+        ? values.purchasePrice
+        : values.purchasePrice.replace(",", "");
+      values.salePrice = !values.salePrice.toString().includes(",")
+        ? values.salePrice
+        : values.salePrice.replace(",", "");
+      // console.log("Mostrando valores ", values);
+      if (fileNameTemp) values.photo = fileNameTemp;
+      let data = {
+        product: {
+          date: values.date,
+          name: values.name,
+          reference: values.reference,
+          category: values.category,
+          description: values.description,
+          state: values.state,
+          stock: values.stock,
+          discount: values.discount,
+          purchasePrice: values.purchasePrice,
+          salePrice: values.salePrice,
+          photo: values.photo,
+          outputs: values.outputs
+        }
+      };
+      if (idEdit) {
+        mutationUpdateProduct.mutate([{ data }, idEdit]);
+      } else {
+        mutationSaveProduct.mutate({ data });
+      }
     }
   });
 
@@ -484,18 +618,72 @@ const Product = () => {
     // console.log('Mostrando archivo selectedHandler => ', file, name, e.target.files[0])
   };
 
+  const sendHandleFile = async () => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("image", file);
+      setSpinnerUpload(true);
+      try {
+        let { data } = await uploadFileService(formData);
+        setUpdateImgFlag(true);
+        setFileNameTemp(data?.nameImage);
+        setFileName("");
+        setMessageNamImage("Foto subida con Exito!!");
+        setSpinnerUpload(false);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const clearData = () => {
+    productFormik.resetForm();
+    setFile(null);
+    setFileName("");
+    setFileNameTemp(null);
+    setFileTemp(null);
+  };
+
+  const handleUpdateFile = () => {
+    if (idEdit && updateImgFlag) {
+      let data = {
+        product: {
+          photo: fileNameTemp
+        }
+      };
+      mutationUpdateProduct.mutate([{ data }, idEdit]);
+    } else {
+      modalImg();
+    }
+  };
+
+  const renderChangeImg = (data) => {
+    setIdEdit(data?._id);
+    if (data?.photo) {
+      setFileName(data?.photo);
+      setFileTemp(`${BASE_URL_DEV}archivo/${data.photo}`);
+    } else {
+      setFileName("");
+      setFileTemp("");
+    }
+    modalImg();
+  };
+
   return (
     <Grid style={{ margin: "10px", marginTop: "-23px" }}>
       <ButtonComponent
         classButton="button-ppal"
         title="Producto"
         icon={<FontAwesomeIcon style={{ marginRight: "7px" }} icon={faCirclePlus} />}
-        handle={modalProducts}
+        handle={() => {
+          if (idEdit) setIdEdit("") && productFormik.resetForm();
+          modalProducts();
+        }}
       />
       <Grid marginTop={1}>
         <TableComponentProvider
           columns={columns2}
-          data={data2}
+          data={products}
           enableColumnFilterModes={true}
           enableColumnOrdering={true}
           enableStickyHeader={true}
@@ -507,7 +695,7 @@ const Product = () => {
           renderToolbarAlertBannerContent={renderToolbarAlertBannerContent}
           enableRowSelection={true}
           enableSelectAll={true}
-          isLoading={false}
+          isLoading={isLoadinProducts ? true : false}
           renderRowActionMenuItems={renderRowActionMenuItems}
           columnPinning={{
             left: ["mrt-row-expand", "mrt-row-select"],
@@ -521,7 +709,7 @@ const Product = () => {
           <Grid container display={"flex"} justifyContent={"space-between"}>
             <Grid>
               <FontAwesomeIcon icon={faCirclePlus} style={{ fontSize: "18px" }} />{" "}
-              <span>Procucto</span>
+              <span>{idEdit ? "Actualziar producto" : "Crear producto"}</span>
             </Grid>
             <Grid title={"Cerrar"} style={{ cursor: "pointer" }}>
               <FontAwesomeIcon icon={faXmark} onClick={modalProducts} />
@@ -579,6 +767,7 @@ const Product = () => {
                 </Label>
                 <SelectComponent
                   optionsValues={options}
+                  loading={options?.length > 0 ? false : true}
                   valueOp={productFormik.values.category}
                   handle={(value) => {
                     productFormik.setFieldValue("category", value);
@@ -608,7 +797,10 @@ const Product = () => {
                 <Label for="exampleEmail">Descripción</Label>
                 <Input
                   className="form-control-input-ppal"
-                  name="name"
+                  name="description"
+                  value={productFormik.values.description}
+                  onChange={productFormik.handleChange}
+                  onBlur={productFormik.handleBlur}
                   placeholder="Ingrese la descripción"
                   type="text"
                 />
@@ -676,7 +868,7 @@ const Product = () => {
                   onChange={(e) => {
                     productFormik.setFieldValue("purchasePrice", e.target.value);
                   }}
-                  onBlur={productFormik.handleBlur}
+                  // onBlur={productFormik.handleBlur}
                   value={productFormik.values.purchasePrice}
                   className="form-control-input-ppal"
                 />
@@ -699,7 +891,7 @@ const Product = () => {
                   onChange={(e) => {
                     productFormik.setFieldValue("salePrice", e.target.value);
                   }}
-                  onBlur={productFormik.handleBlur}
+                  // onBlur={productFormik.handleBlur}
                   value={productFormik.values.salePrice}
                   className="form-control-input-ppal"
                 />
@@ -728,7 +920,17 @@ const Product = () => {
             </Grid>
           </Grid>
           <Grid md={4} sm={4} xs={12} marginTop={1} style={{ cursor: "pointer" }}>
-            <Small className="custom-small" onClick={modalImg}>
+            <Small
+              className="custom-small"
+              onClick={() => {
+                if (fileNameTemp || fileName || fileTemp) {
+                  setFileNameTemp(null);
+                  setFileName("");
+                  setFileTemp(null);
+                }
+                modalImg();
+              }}
+            >
               <svg
                 aria-hidden="true"
                 focusable="false"
@@ -754,12 +956,21 @@ const Product = () => {
             <ButtonComponent
               classButton="button-ppal"
               style={{ marginTop: "10px" }}
-              title="Aceptar"
+              title={idEdit ? "Actualizar" : "Aceptar"}
+              disable={
+                mutationSaveProduct.isPending || mutationUpdateProduct.isPending ? true : false
+              }
               icon={
                 <FontAwesomeIcon
                   style={{ marginRight: "7px" }}
-                  icon={spinner ? faRotate : faSave}
-                  spin={spinner ? true : false}
+                  icon={
+                    mutationSaveProduct.isPending || mutationUpdateProduct.isPending
+                      ? faRotate
+                      : faSave
+                  }
+                  spin={
+                    mutationSaveProduct.isPending || mutationUpdateProduct.isPending ? true : false
+                  }
                 />
               }
               handle={productFormik.handleSubmit}
@@ -767,7 +978,7 @@ const Product = () => {
           </Grid>
         </ModalFooter>
       </ModalComponent>
-      {/* Modal Para ver y sybir imagenes de los productos */}
+      {/* Modal Para ver y subir imagenes de los productos */}
       <ModalComponent open={isOpenImg} title={"Foto Producto"} w100Modal={"w50Modal"}>
         <ModalHeader className="modal-title header-tyles">
           <Grid container display={"flex"} justifyContent={"space-between"}>
@@ -787,15 +998,20 @@ const Product = () => {
                 {!fileTemp && productFormik.values.photo ? (
                   <img
                     className="no-image"
-                    src={`${BASE_URL_PROD}/product/photo/${productFormik.values.photo}`}
+                    src={`${BASE_URL_PROD}/product/photo/${productFormik?.values?.photo}`}
                     alt=""
-                  >
-                    {" "}
-                  </img>
+                  />
                 ) : fileTemp ? (
-                  <img className="no-image" src={fileTemp}></img>
+                  <img
+                    className="no-image"
+                    src={`${
+                      fileTemp?.includes("https") || fileTemp?.includes("http")
+                        ? `${fileTemp}`
+                        : fileTemp
+                    }`}
+                  />
                 ) : (
-                  <img className="no-image" src={NO_IMAGE}></img>
+                  <img className="no-image" src={NO_IMAGE} />
                 )}
               </Grid>
             </Grid>
@@ -844,9 +1060,20 @@ const Product = () => {
                 </label>
                 <span style={{ fontSize: "12px" }}>
                   {fileName ? (
-                    <strong>{fileName}</strong>
+                    <strong>
+                      {fileName.length > 33
+                        ? `${fileName.slice(0, fileName.length - 24)}...`
+                        : fileName}
+                    </strong>
                   ) : messageNamImage ? (
-                    <strong>Foto subida con éxito !!</strong>
+                    <div>
+                      <strong
+                        style={{ display: "flex", justifyContent: "start", alignItems: "start" }}
+                      >
+                        Foto subida con éxito!!
+                      </strong>
+                      <strong style={{ fontSize: "10px" }}>{fileNameTemp}</strong>
+                    </div>
                   ) : (
                     <strong>Ningún archivo selecionado</strong>
                   )}
@@ -865,8 +1092,15 @@ const Product = () => {
                   alignItems={"center"}
                 >
                   <ButtonComponent
-                    icon={<FontAwesomeIcon style={{ marginRight: "4px" }} icon={faUpload} />}
-                    title={"Subir Foto"}
+                    handle={sendHandleFile}
+                    icon={
+                      <FontAwesomeIcon
+                        style={{ marginRight: "4px" }}
+                        icon={spinnerUpload ? faRotate : faUpload}
+                        spin={spinnerUpload ? true : false}
+                      />
+                    }
+                    title={spinnerUpload ? "Subiendo ..." : "Subir Foto"}
                     classButton={"button-upload"}
                   />
                 </Grid>
@@ -878,9 +1112,9 @@ const Product = () => {
           <Grid style={{ marginTop: "-25px" }}>
             <ButtonComponent
               classButton="button-ppal"
-              title="Aceptar"
+              title={idEdit ? "Actualizar" : "Aceptar"}
               icon={<FontAwesomeIcon style={{ marginRight: "7px" }} icon={faSave} />}
-              handle={modalProducts}
+              handle={handleUpdateFile}
             />
           </Grid>
         </ModalFooter>

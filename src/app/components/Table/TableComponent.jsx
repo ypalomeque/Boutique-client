@@ -43,7 +43,11 @@ const Example = ({
   renderRowActionMenuItems,
   positionCreatingRow,
   enableExpanding,
-  columnPinning
+  columnPinning,
+  onCreatingRowSave,
+  onEditingRowSave,
+  onEditingRowCancel,
+  onCreatingRowCancel
 }) => {
   return (
     <MaterialReactTable
@@ -111,7 +115,10 @@ const Example = ({
       renderDetailPanel={renderDetailPanel ? renderDetailPanel : null}
       renderRowActionMenuItems={renderRowActionMenuItems ? renderRowActionMenuItems : null}
       positionCreatingRow={positionCreatingRow ? positionCreatingRow : null}
-      onCreatingRowSave={() => {}}
+      onCreatingRowSave={onCreatingRowSave}
+      onEditingRowCancel={onEditingRowCancel}
+      onCreatingRowCancel={onCreatingRowCancel}
+      onEditingRowSave={onEditingRowSave}
     />
   );
 };
@@ -137,7 +144,11 @@ const TableComponentProvider = ({
   enableEditing,
   positionCreatingRow,
   enableExpanding,
-  columnPinning
+  columnPinning,
+  onCreatingRowSave,
+  onEditingRowSave,
+  onEditingRowCancel,
+  onCreatingRowCancel
 }) => {
   const theme = useTheme(); //replace with your theme/createTheme
   return (
@@ -166,6 +177,10 @@ const TableComponentProvider = ({
           positionCreatingRow={positionCreatingRow}
           enableExpanding={enableExpanding}
           columnPinning={columnPinning}
+          onCreatingRowSave={onCreatingRowSave}
+          onEditingRowSave={onEditingRowSave}
+          onEditingRowCancel={onEditingRowCancel}
+          onCreatingRowCancel={onCreatingRowCancel}
         />
       </LocalizationProvider>
     </ThemeProvider>

@@ -331,4 +331,78 @@ input#choose_file {
     padding-left: 5px !important;
 }
 
+.content-toast {
+    color: #fff !important;
+}
+
+.content-toast,
+.Toastify__close-button {
+    color: #fff !important;
+}
+
+.Toastify__toast-body {
+    color: #fff !important;
+}
+
+.Toastify--animate-icon>svg {
+    fill: #fff !important;
+}
+
+.Toastify__close-button--light>svg {
+    color: #fff !important;
+}
+
+.Toastify__close-button>svg {
+    color: #fff !important;
+}
+
+.Toastify__progress-bar .Toastify__progress-bar--animated .Toastify__progress-bar-theme--light .Toastify__progress-bar--error {
+    background: #fff !important;
+}
+
+.Toastify__progress-bar--error {
+    background: #fff !important;
+}
+
+.Toastify__progress-bar--success {
+    background: #fff !important;
+}
+
+.MuiPickersClockNumber-clockNumberSelected,
+.MuiPickersClockPointer-thumb,
+.Toastify__toast,
+.Toastify__toast-theme--light {
+    background: #c752c1 !important;
+}
+
+
+.MuiPaginationItem-root.Mui-selected {
+    color: #fff !important;
+    background: #c752c1 !important;
+}
+
+.MuiFormHelperText-sizeSmall {
+    color: #a7069f !important;
+}
+
+.MuiIconButton-colorInfo {
+    color: #c752c1 !important;
+}
+
+.MuiInput-underline::after {
+    border-color: #a7069f !important;
+}
+
+.MuiInput-underline::before {
+    border-color: #a7069f !important;
+}
+
+[aria-label="Delete"] {
+    color: #c752c1 !important;
+}
+
+[aria-label="Editar"] {
+    color: #c752c1 !important;
+}
+
 /* FIN ESTILOS SPAN PERSONALIZADO */

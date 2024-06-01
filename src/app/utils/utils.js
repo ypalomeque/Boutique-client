@@ -109,6 +109,9 @@ export function getTimeDifference(date) {
 
 /******************MY UTILITYS*******************/
 
+export const BASE_URL_DEV = 'http://localhost:3001/boutique/'
+export const BASE_URL_PROD = 'http://localhost:3001/boutique/'
+
 export const dataTable = [
   {
     name: {
@@ -2202,3 +2205,24 @@ export const usStates = [
   'South Australia',
   'Queensland',
 ];
+
+export const typeCategory = [
+  "Servicio"
+]
+
+export function formatPrice(val) {
+  try {
+    if (val > 0) {
+      let value = parseFloat(val).toFixed(0);
+      value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return `$${value}`;
+    } else if (val === 0) {
+      return "$" + val;
+    } else if (val === "") {
+      return val;
+    }
+    return null;
+  } catch (error) {
+    console.error(error);
+  }
+}

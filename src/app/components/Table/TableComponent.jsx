@@ -44,7 +44,10 @@ const Example = ({
   positionCreatingRow,
   enableExpanding,
   columnPinning,
-  enableColumnActions
+  onCreatingRowSave,
+  onEditingRowSave,
+  onEditingRowCancel,
+  onCreatingRowCancel
 }) => {
   return (
     <MaterialReactTable
@@ -142,7 +145,11 @@ const TableComponentProvider = ({
   enableEditing,
   positionCreatingRow,
   enableExpanding,
-  columnPinning
+  columnPinning,
+  onCreatingRowSave,
+  onEditingRowSave,
+  onEditingRowCancel,
+  onCreatingRowCancel
 }) => {
   const theme = useTheme(); //replace with your theme/createTheme
   return (
@@ -171,8 +178,6 @@ const TableComponentProvider = ({
           positionCreatingRow={positionCreatingRow}
           enableExpanding={enableExpanding}
           columnPinning={columnPinning}
-          enableColumnActions={enableColumnActions}
-
         />
       </LocalizationProvider>
     </ThemeProvider>

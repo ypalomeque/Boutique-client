@@ -109,6 +109,9 @@ export function getTimeDifference(date) {
 
 /******************MY UTILITYS*******************/
 
+export const BASE_URL_DEV = 'http://localhost:3001/boutique/'
+export const BASE_URL_PROD = 'http://localhost:3001/boutique/'
+
 export const dataTable = [
   {
     name: {
@@ -2202,62 +2205,3 @@ export const usStates = [
   'South Australia',
   'Queensland',
 ];
-
-export const colombianCities = [
-  'Bogotá',
-  'Medellín',
-  'Cali',
-  'Barranquilla',
-  'Cartagena',
-  'Cúcuta',
-  'Soacha',
-  'Soledad',
-  'Bucaramanga',
-  'Bello',
-  'Villavicencio',
-  'Ibagué',
-  'Santa Marta',
-  'Valledupar',
-  'Manizales',
-  'Montería',
-  'Pereira',
-  'Neiva',
-  'Pasto',
-  'Armenia',
-  'Sincelejo',
-  'Riohacha',
-  'Tunja',
-  'Popayán',
-  'Florencia',
-  'Quibdó',
-  'Mocoa',
-  'San José del Guaviare',
-  'Yopal',
-  'Arauca',
-  'Leticia',
-  'Inírida',
-  'Mitú',
-  'Puerto Carreño',
-  'Buenaventura',
-  'Tumaco',
-  'Maicao',
-  'Apartadó',
-  'Turbo',
-  'Tuluá',
-  'Girardot',
-  'Zipaquirá',
-  'Rionegro',
-  'Floridablanca',
-  'Palmira',
-  'Envigado',
-  'Itagüí',
-  'Dosquebradas',
-  'Fusagasugá',
-  'Facatativá',
-  'Chía',
-  'Jamundí',
-  'Sogamoso',
-  'Mosquera',
-  'Piedecuesta',
-];
-

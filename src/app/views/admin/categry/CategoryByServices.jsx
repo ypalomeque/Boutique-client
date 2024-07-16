@@ -1,5 +1,5 @@
 import { Box, Grid, IconButton, Tooltip } from "@mui/material";
-import { typeCategory } from "app/utils/utils";
+import { dataC, typeCategory } from "app/utils/utils";
 import React, { useMemo } from "react";
 import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
@@ -17,6 +17,7 @@ const CategoryServices = () => {
   const [validationErrors, setValidationErrors] = useState({});
 
   const { data, isLoading: isLoadingCategories } = GetCategories();
+
   const dataCategories = data
     ?.filter((x) => x.type === 2)
     ?.map((el) => {
@@ -25,7 +26,7 @@ const CategoryServices = () => {
         ...el
       };
     });
-
+  console.log(dataCategories);
   const mutationSaveCategory = useMutation({
     mutationFn: SaveCategory,
     onError: (error, variables, context) => {

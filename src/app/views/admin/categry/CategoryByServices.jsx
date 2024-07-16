@@ -1,10 +1,9 @@
 import { Box, Grid, IconButton, Tooltip } from "@mui/material";
-import { fakeData, formatPrice, typeCategory, usStates } from "app/utils/utils";
+import { typeCategory } from "app/utils/utils";
 import React, { useMemo } from "react";
 import { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { createRow } from "material-react-table";
 import TableComponentProvider from "app/components/Table/TableComponent";
 import { GetCategories, SaveCategory } from "app/hooks/categories";
@@ -52,6 +51,7 @@ const CategoryServices = () => {
       {
         accessorKey: "name",
         header: "Categória",
+        enableEditing: true,
         size: 100,
         muiEditTextFieldProps: {
           required: true,
@@ -69,6 +69,7 @@ const CategoryServices = () => {
       {
         accessorKey: "amount",
         header: "Valor",
+        enableEditing: true,
         muiEditTextFieldProps: {
           required: true,
           type: "text",
@@ -80,39 +81,7 @@ const CategoryServices = () => {
               ...validationErrors,
               amount: undefined
             })
-        },
-        Cell: ({ cell }) => (
-          // <Box
-          //   component="span"
-          //   sx={(theme) => ({
-          //     backgroundColor:
-          //       cell.getValue() < 50_000
-          //         ? theme.palette.error.dark
-          //         : cell.getValue() >= 50_000 && cell.getValue() < 75_000
-          //         ? theme.palette.warning.dark
-          //         : theme.palette.success.dark,
-          //     borderRadius: "0.25rem",
-          //     color: "#fff",
-          //     maxWidth: "9ch",
-          //     p: "0.25rem"
-          //   })}
-          // >
-          //   {cell.getValue()?.toLocaleString?.("en-US", {
-          //     style: "currency",
-          //     currency: "USD",
-          //     minimumFractionDigits: 0,
-          //     maximumFractionDigits: 0
-          //   })}
-          // </Box>
-          <Box>
-            {cell.getValue()?.toLocaleString?.("es-CO", {
-              style: "currency",
-              currency: "COP",
-              minimumFractionDigits: 0,
-              maximumFractionDigits: 0
-            })}
-          </Box>
-        )
+        }
       },
       {
         accessorKey: "type",
@@ -141,7 +110,7 @@ const CategoryServices = () => {
   const validateOnlNumbers = (value) => expressionValidOnlyNumbers.test(value);
 
   function validateCategory(category) {
-    // console.log("Datos ", category);
+    console.log("Datos ", category);
     return {
       name: !validateRequired(category.name)
         ? "La categoria es requerida"
@@ -179,7 +148,7 @@ const CategoryServices = () => {
     }
   };
 
-  const renderRowActions = ({ row, staticRowIndex, table }) => (
+  const renderRowActions = ({ row, table }) => (
     <Box
       sx={{
         display: "flex",
@@ -187,7 +156,7 @@ const CategoryServices = () => {
         alignContent: "center",
         alignItems: "center"
       }}
-      style={{ marginLeft: "-40%" }}
+      style={{ marginLeft: "-70%" }}
     >
       <Tooltip title="Editar">
         <IconButton onClick={() => table.setEditingRow(row)}>
@@ -199,21 +168,18 @@ const CategoryServices = () => {
           <DeleteIcon />
         </IconButton>
       </Tooltip> */}
-      <Tooltip title="Add Subordinate">
+      <Tooltip title="Nuevo registro">
         <IconButton
           onClick={() => {
-            setCreatingRowIndex((staticRowIndex || 0) + 1);
+            // setCreatingRowIndex((staticRowIndex || 0) + 1);
             table.setCreatingRow(
               createRow(
                 table,
                 {
-                  id: null,
-                  firstName: "",
-                  lastName: "",
-                  city: "",
-                  state: "",
-                  managerId: row.id,
-                  subRows: []
+                  _id: null,
+                  name: "",
+                  value: "",
+                  category: ""
                 },
                 -1,
                 row.depth + 1
@@ -221,7 +187,7 @@ const CategoryServices = () => {
             );
           }}
         >
-          <PersonAddAltIcon />
+          <AddCircleIcon />
         </IconButton>
       </Tooltip>
     </Box>
@@ -229,16 +195,28 @@ const CategoryServices = () => {
 
   const rowCancel = () => {
     return false;
-    setValidationErrors({});
   };
 
-  const rowCanceSavel = () => {
-    return false;
-    setValidationErrors({});
+  const rowCanceSave = ({ table }) => {
+    if (dataCategories.length === 0) {
+      queryClient.invalidateQueries("categories");
+      setValidationErrors({});
+    } else {
+      table.setEditingRow(null);
+    }
   };
 
-  const handleUpdateCategory = () => {
-    console.log("Holaaa");
+  const handleUpdateCategory = ({ values, row, table }) => {
+    const newValidationErrors = validateCategory(values);
+    console.log("falta la accion1", newValidationErrors);
+    // if (Object.values(newValidationErrors).some((error) => error)) {
+    //   console.log("falta la accion1", newValidationErrors);
+    //   setValidationErrors(newValidationErrors);
+    //   return;
+    // }
+    // setValidationErrors({});
+    // console.log("falta la accion");
+    return;
   };
 
   return (
@@ -250,9 +228,9 @@ const CategoryServices = () => {
         enableRowSelection={true}
         renderRowActions={renderRowActions}
         onCreatingRowSave={handleCreateCategory}
-        onCreatingRowCancel={() => rowCanceSavel()}
+        onCreatingRowCancel={rowCanceSave}
         onEditingRowSave={handleUpdateCategory}
-        onEditingRowCancel={() => rowCancel()}
+        onEditingRowCancel={rowCancel}
         enableEditing={true}
         positionCreatingRow={creatingRowIndex}
         enableExpanding={false}

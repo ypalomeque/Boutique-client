@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { memo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -32,34 +31,6 @@ import moment from "moment-timezone";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { NotificationAlert } from "app/components/NotificationAlert/Notification";
 
-const columns = [
-  {
-    accessorKey: "name.firstName", //access nested data with dot notation
-    header: "First Name",
-    size: 150
-  },
-  {
-    accessorKey: "name.lastName",
-    header: "Last Name",
-    size: 150
-  },
-  {
-    accessorKey: "address", //normal accessorKey
-    header: "Address",
-    size: 200
-  },
-  {
-    accessorKey: "city",
-    header: "City",
-    size: 150
-  },
-  {
-    accessorKey: "state",
-    header: "State",
-    size: 150
-  }
-];
-
 const columns2 = [
   {
     accessorFn: (row) => `${row.name}`, //accessorFn used to join multiple data into a single cell
@@ -81,7 +52,7 @@ const columns2 = [
             row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
           }
           loading="lazy"
-          style={{ borderRadius: "50%" }}
+          style={{ borderRadius: "50%", height: "5vh", width: "20%" }}
         />
         {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
         <span>{renderedCellValue}</span>
@@ -246,7 +217,7 @@ const columns2 = [
 ];
 
 const Product = () => {
-  const [spinner, setSpinner] = useState(false);
+  // const [spinner, setSpinner] = useState(false);
   const [idEdit, setIdEdit] = useState("");
   const [updateImgFlag, setUpdateImgFlag] = useState(false);
   const [spinnerUpload, setSpinnerUpload] = useState(false);
@@ -308,7 +279,7 @@ const Product = () => {
             row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
           }
           loading="lazy"
-          style={{ borderRadius: "50%", width: "25%" }}
+          style={{ borderRadius: "5%", height: "20vh", width: "25%" }}
           onClick={() => renderChangeImg(row.original)}
         />
         <Box sx={{ textAlign: "center" }}>
@@ -504,7 +475,7 @@ const Product = () => {
     mutationFn: UpdateProduct,
     onError: (error, variables, context) => {
       let { message } = error.response.data;
-      console.log("Mostrando error", error, variables);
+      //console.log("Mostrando error", error, variables);
       // console.log("Mostrando error", context);
       NotificationAlert("error", "Actualización Producto", `${message}`);
     },
@@ -690,6 +661,8 @@ const Product = () => {
           enableStickyFooter={true}
           enableFacetedValues={true}
           enableColumnPinning={false}
+          enableExpanding={false}
+          enableGrouping={true}
           enableRowActions={true}
           renderDetailPanel={renderDetailPanel}
           renderToolbarAlertBannerContent={renderToolbarAlertBannerContent}

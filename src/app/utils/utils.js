@@ -1,4 +1,6 @@
+import { QueryCache } from "@tanstack/react-query";
 import { differenceInSeconds } from "date-fns";
+import _ from "lodash";
 
 export const convertHexToRGB = (hex) => {
   // check if it's a rgba
@@ -2147,71 +2149,15 @@ export const fakeData = [
   },
 ];
 
-//50 us states array
-export const usStates = [
-  'Alabama',
-  'Alaska',
-  'Arizona',
-  'Arkansas',
-  'California',
-  'Colorado',
-  'Connecticut',
-  'Delaware',
-  'Florida',
-  'Georgia',
-  'Hawaii',
-  'Idaho',
-  'Illinois',
-  'Indiana',
-  'Iowa',
-  'Kansas',
-  'Kentucky',
-  'Louisiana',
-  'Maine',
-  'Maryland',
-  'Massachusetts',
-  'Michigan',
-  'Minnesota',
-  'Mississippi',
-  'Missouri',
-  'Montana',
-  'Nebraska',
-  'Nevada',
-  'New Hampshire',
-  'New Jersey',
-  'New Mexico',
-  'New York',
-  'North Carolina',
-  'North Dakota',
-  'Ohio',
-  'Oklahoma',
-  'Oregon',
-  'Pennsylvania',
-  'Rhode Island',
-  'South Carolina',
-  'South Dakota',
-  'Tennessee',
-  'Texas',
-  'Utah',
-  'Vermont',
-  'Virginia',
-  'Washington',
-  'West Virginia',
-  'Wisconsin',
-  'Wyoming',
-  'Puerto Rico',
-  'Western Australia',
-  'Northern Territory',
-  'South Australia',
-  'Queensland',
-];
-
 export const typeCategory = [
   "Servicio"
 ]
 
 export function formatPrice(val) {
   try {
+    if (val.toString().includes(",")) {
+      val = val.replaceAll(',', '')
+    }
     if (val > 0) {
       let value = parseFloat(val).toFixed(0);
       value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -2225,4 +2171,62 @@ export function formatPrice(val) {
   } catch (error) {
     console.error(error);
   }
+}
+
+export const queryCache = new QueryCache({
+  onError: (error) => {
+    console.log(error)
+  },
+  onSuccess: (data) => {
+    console.log(data)
+  },
+  onSettled: (data, error) => {
+    console.log(data, error)
+  },
+})
+
+
+export function findValueInObject(data, filter) {
+  return _.find(data, filter)
+}
+
+export function findValueInArray(data, filter) {
+  return _.filter(data, filter)
+}
+
+export default function LoadingSpinner() {
+  return (
+    <div className="spinner-container">
+      <div className="loading-spinner">
+      </div>
+    </div>
+  );
+}
+
+export function calValueDiscountOnProduct(product) {
+  let valuePrice = Number(product.salePrice * product.quantity)
+  let valueDisc = Number(product.discount * product.quantity)
+  let total = valuePrice - valueDisc
+  console.log(valueDisc, total);
+  if (valueDisc === 0) {
+    return 0
+  }
+  return total
+}
+
+export function calValuePercentajeDicountOfWholesale(total, valueDisc) {
+
+  if (total.toString().includes(",")) {
+    total = total.replaceAll(',', '');
+  }
+  if (valueDisc.toString().includes(",")) {
+    valueDisc = valueDisc.replaceAll(',', '');
+  }
+
+  total = parseFloat(total);
+  valueDisc = parseFloat(valueDisc);
+
+  const percentage = (valueDisc / total) * 100;
+
+  return percentage.toFixed(2);
 }

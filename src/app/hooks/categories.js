@@ -3,7 +3,7 @@ import { getCategoriesApi, saveCategoryApi } from "app/api/category";
 
 
 export function GetCategories() {
-    return useQuery({ queryKey: ['categories'], queryFn: getCategoriesApi })
+    return useQuery({ queryKey: ['categories'], queryFn: getCategoriesApi, saleTime: 120000 })
 }
 
 export function SaveCategory(payload) {

@@ -41,8 +41,13 @@ const SelectComponent = ({
       noOptionsMessage={() => <span style={{ color: "#63038b" }}>No se encontraron datos</span>}
       isLoading={loading}
       isDisabled={disabled}
+      onKeyDown={(e) => {
+        if (e.keyCode == 13 && e.key === "Enter") {
+          e.preventDefault();
+        }
+      }}
       value={
-        options.length > 0 ? (value ? options.find((option) => option.value == value) : "") : ""
+        options?.length > 0 ? (value ? options?.find((option) => option.value == value) : "") : ""
       }
       onBlur={(e) => {
         if (onBlurFn !== null) {

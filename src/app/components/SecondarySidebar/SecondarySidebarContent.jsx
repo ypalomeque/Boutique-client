@@ -51,7 +51,8 @@ export default function SecondarySidebarContent() {
           <IconButton size="small" sx={{ my: "12px", color: "primary.contrastText" }}>
             <Comment />
           </IconButton>
-        }>
+        }
+      >
         <Chatbox />
       </ChatHead>
 

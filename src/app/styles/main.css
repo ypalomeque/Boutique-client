@@ -158,6 +158,10 @@ body {
     min-width: 55% !important;
 }
 
+.w15Modal {
+    min-width: 15% !important;
+}
+
 .modal-header {
     display: flex;
     flex-shrink: 0;
@@ -268,13 +272,17 @@ small {
 }
 
 input#choose_file+label {
+    display: flex;
+    text-align: center;
+    font-size: 14px;
+    justify-content: center;
     background-color: #8602c0;
     padding: 1px;
     color: #fff;
     border: 2px solid #ff6cb1;
     border-radius: 9px;
-    text-align: center !important;
 }
+
 
 .form-label {
     margin-bottom: .5rem;
@@ -301,6 +309,54 @@ input#choose_file {
     width: 115px !important;
     height: 32px !important;
     margin-top: 29px !important;
+    cursor: pointer !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    background: #ec85e6 !important;
+    border: 1px solid #ec85e6 !important;
+    font-size: 15px !important;
+    color: #fff !important;
+    font-family: "Roboto", cursive !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    -webkit-transform: perspective(1px) translateZ(0) !important;
+    transform: perspective(1px) translateZ(0) !important;
+    box-shadow: 0 0 1px #ec85e6 !important;
+    transition-property: color !important;
+    transition-duration: .5s !important;
+}
+
+.button-order-save {
+    display: flex !important;
+    align-items: center !important;
+    border: none;
+    width: 115px !important;
+    height: 19px !important;
+    margin-top: 18px !important;
+    cursor: pointer !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    background: #ec85e6 !important;
+    border: 1px solid #ec85e6 !important;
+    font-size: 15px !important;
+    color: #fff !important;
+    font-family: "Roboto", cursive !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    -webkit-transform: perspective(1px) translateZ(0) !important;
+    transform: perspective(1px) translateZ(0) !important;
+    box-shadow: 0 0 1px #ec85e6 !important;
+    transition-property: color !important;
+    transition-duration: .5s !important;
+}
+
+.button-order-cancel {
+    display: flex !important;
+    align-items: center !important;
+    border: none;
+    width: 115px !important;
+    height: 19px !important;
+    margin-top: 18px !important;
     cursor: pointer !important;
     justify-content: center !important;
     padding: 0 !important;
@@ -364,7 +420,10 @@ input#choose_file {
     background: #fff !important;
 }
 
-.Toastify__progress-bar--success {
+.Toastify__progress-bar--success,
+.Toastify__progress-bar--warning,
+.Toastify__progress-bar--info,
+.Toastify__progress-bar--error {
     background: #fff !important;
 }
 
@@ -402,6 +461,372 @@ input#choose_file {
 }
 
 [aria-label="Editar"] {
+    color: #c752c1 !important;
+}
+
+.tooltip1 .tooltip-content {
+    visibility: hidden !important;
+    display: inline-block !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    border-radius: 20px !important;
+    background-color: #c752c1 !important;
+    color: #fff !important;
+    position: absolute !important;
+    z-index: 1 !important;
+    margin-top: 20px;
+}
+
+.tooltip1:hover .tooltip-content {
+    visibility: visible !important;
+}
+
+.mt-tooltip-car-shipping-delete {
+    width: 60% !important;
+    opacity: .7 !important;
+    margin-left: -50% !important;
+}
+
+.select-order-category {
+    z-index: 7;
+}
+
+.select-order-departamentsMunicipies {
+    z-index: 10;
+}
+
+.list-products {
+    display: flex;
+    flex-flow: row wrap;
+    margin: auto;
+    height: 59vh;
+    overflow: auto;
+}
+
+.card-style {
+    background-color: rgb(255, 255, 255);
+    color: rgb(52, 49, 76);
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: rgba(0, 0, 0, 0.06) 0px 3px 3px -2px, rgba(0, 0, 0, 0.04) 0px 3px 4px 0px, rgba(0, 0, 0, 0.04) 0px 1px 8px 0px !important;
+}
+
+.content-input {
+    position: relative;
+    margin-bottom: 30px;
+    padding: 5px 0 5px 60px;
+    display: block;
+}
+
+.content-input input[type=checkbox]+i {
+    width: 48px;
+    height: 24px;
+    border-radius: 15px;
+}
+
+.content-input input+i {
+    background: #f0f0f0 !important;
+    border: 2px solid rgba(0, 0, 0, .2) !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+}
+
+
+
+.content-input input[type=checkbox]:checked+i {
+    background: #f153c2 !important;
+}
+
+.content-input input[type=checkbox]:checked+i:after {
+    opacity: 1 !important;
+}
+
+.content-input input[type=checkbox]+i:before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    box-shadow: 3px 0 3px 0 rgba(0, 0, 0, .2);
+}
+
+.content-input input[type=checkbox]:checked+i:before {
+    left: 22px;
+    -webkit-box-shadow: -3px 0 3px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 0 -3px 0 rgba(0, 0, 0, 0.2);
+}
+
+.content-input input[type=checkbox]+i:after {
+    content: "ON" !important;
+    position: absolute !important;
+    font-size: 10px !important;
+    color: hsla(0, 0%, 100%, .6) !important;
+    top: 4px !important;
+    left: 4px !important;
+    opacity: 0;
+    transition: all .25s ease .25s !important;
+}
+
+.button-shopping-orders {
+    border: none;
+    width: 115px !important;
+    height: 32px !important;
+    margin-top: 29px !important;
+    cursor: pointer !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    background: #ec85e6 !important;
+    border: 1px solid #ec85e6 !important;
+    font-size: 15px !important;
+    color: #fff !important;
+    font-family: "Roboto", cursive !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    -webkit-transform: perspective(1px) translateZ(0) !important;
+    transform: perspective(1px) translateZ(0) !important;
+    box-shadow: 0 0 1px #ec85e6 !important;
+    transition-property: color !important;
+    transition-duration: .5s !important;
+}
+
+.button-ppal-w100 {
+    width: 100% !important;
+}
+
+.div-actual-order {
+    width: 100% !important;
+}
+
+.div-pedido-actual {
+    flex-direction: column;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 30%;
+}
+
+.div-pedido-actual {
+    margin-left: 5px;
+    margin-right: 5px;
+    width: 45%;
+}
+
+.div-pedido-actual {
+    width: 53%;
+}
+
+.div-pedido-lista {
+    overflow: auto;
+    height: 28.5vh;
+    background-color: white;
+    width: 100%;
+}
+
+.div-productos-lista {
+    width: 25%;
+}
+
+.div-list-products-order-ListGroupItem {
+    background: rgba(243, 239, 239, .6) !important;
+    margin-top: 15px;
+    margin: 0 auto !important;
+    width: 97% !important;
+    padding: 10px !important;
+}
+
+.width-items-actual-product {
+    width: 97% !important;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.txt-cantidad-product {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.div-list-products-order-ListGroupItem-content-buttons {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-direction: column !important;
+    justify-content: space-around !important;
+}
+
+.content-packing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(237, 160, 209, .6) !important;
+    border-radius: 5px !important;
+    border-color: #f153c2;
+    height: 22px !important;
+}
+
+/* .btn-packing {
+    height: 27px !important;
+    color: #63038b;
+} */
+
+.button-packageOn,
+.button-packageOff {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    height: 20px !important;
+    margin-bottom: 1px !important;
+    font-size: 13px !important;
+    color: hsla(0, 100%, 2%, 0.562) !important;
+}
+
+.button-packageOn:hover {
+    background: #c82bc1 !important;
+    color: #f0f0f0 !important;
+}
+
+
+.button-packageOff {
+    background: #c752c1 !important;
+    color: #f0f0f0 !important;
+}
+
+.style-badge>svg {
+    color: #c752c1 !important;
+    cursor: pointer !important;
+}
+
+.style-badge>span {
+    background-color: #c752c1 !important;
+    color: #f0f0f0;
+}
+
+/* .btn-group-conten {
+    display: flex !important;
+}
+
+.btn-group,
+.btn-group-vertical {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+} */
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+    border: 10px solid #090909;
+    /* Light grey */
+    border-top: 10px solid rgb(236, 171, 15);
+    /* Black */
+    border-radius: 50%;
+    animation: spinner 1.5s linear infinite;
+}
+
+.select-user-type {
+    z-index: 12 !important;
+}
+
+.select-user-document-type {
+    z-index: 10 !important;
+}
+
+.dateTimePicker {
+    width: 100% !important;
+}
+
+
+.Mui-selected {
+    background: #c752c1 !important;
+    color: #f0f0f0 !important;
+}
+
+.MuiPickersDay-daySelected,
+.MuiPickersToolbar-toolbar {
+    background-color: #c752c1 !important;
+}
+
+.css-23p0if-MuiButtonBase-root-MuiPickersDay-root:not(.Mui-selected) {
+    border: 1px solid rgba(199, 82, 193, 1) !important;
+}
+
+.dateTimePicker>div {
+    border-radius: 50px;
+    /* border: 1px solid #ec85e6 !important; */
+    align-items: center;
+    height: 30px;
+    width: 100% !important;
+}
+
+.dateTimePicker>div>fieldset {
+    border-color: #ec85e6 !important;
+}
+
+.dateTimePicker>div:hover {
+    transition: outline 1s ease-in-out;
+    outline: 1px solid var(--focus-color, #ec85e6);
+    box-shadow: 1px 0px 2px var(--focus-shadow-color, #ec85e6);
+}
+
+.dateTimePicker>div::after {
+    transition: outline 1s ease-in-out;
+    outline: 1px solid var(--focus-color, #ec85e6);
+    box-shadow: 1px 0px 2px var(--focus-shadow-color, #ec85e6);
+}
+
+.dateTimePicker>div::before {
+    transition: outline 1s ease-in-out;
+    outline: 1px solid var(--focus-color, #ec85e6);
+    box-shadow: 1px 0px 2px var(--focus-shadow-color, #ec85e6);
+}
+
+.MuiOutlinedInput-notchedOutline .css-1d3z3hw-MuiOutlinedInput-notchedOutline {
+    border: 1px solid #ec85e6 !important;
+}
+
+
+
+/* .dateTimePicker>div>input {
+    border: 1px solid #ec85e6 !important
+} */
+
+
+.css-jgls56-MuiButtonBase-root-MuiPickersDay-root.Mui-selected {
+    color: #fff;
+    background-color: #c752c1 !important;
+    font-weight: 500;
+}
+
+.css-1u23akw-MuiButtonBase-root-MuiPickersDay-root.Mui-selected:hover {
+    will-change: background-color;
+    background-color: #c752c1 !important;
+}
+
+.css-1u23akw-MuiButtonBase-root-MuiPickersDay-root:focus.Mui-selected {
+    will-change: background-color;
+    background-color: #c752c1 !important;
+}
+
+.MuiPickersLayout-actionBar>button {
     color: #c752c1 !important;
 }
 

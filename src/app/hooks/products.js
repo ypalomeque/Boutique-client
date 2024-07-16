@@ -8,9 +8,8 @@ export function SaveProduct(payload) {
 }
 
 export function GetProducts() {
-    return useQuery({ queryKey: ['products'], queryFn: getProductsApi })
+    return useQuery({ queryKey: ['products'], queryFn: getProductsApi, staleTime: 120000 })
 }
-
 export function UpdateProduct(data) {
     return updateProductApi(data[0], data[1])
 }

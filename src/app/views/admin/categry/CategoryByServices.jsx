@@ -6,27 +6,27 @@ import EditIcon from "@mui/icons-material/Edit";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { createRow } from "material-react-table";
 import TableComponentProvider from "app/components/Table/TableComponent";
-import { GetCategories, SaveCategory } from "app/hooks/categories";
+import { GetCategoriesQuery, SaveCategory } from "app/hooks/categories";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { expressionValidOnlyLetters, expressionValidOnlyNumbers } from "app/utils/constant";
 import { NotificationAlert } from "app/components/NotificationAlert/Notification";
+import TextField from "@mui/material/TextField";
 
 const CategoryServices = () => {
   const queryClient = useQueryClient();
   const [creatingRowIndex, setCreatingRowIndex] = useState();
   const [validationErrors, setValidationErrors] = useState({});
 
-  const { data, isLoading: isLoadingCategories } = GetCategories();
+  const { data, isLoading: isLoadingCategories } = GetCategoriesQuery();
 
-  const dataCategories = data
-    ?.filter((x) => x.type === 2)
-    ?.map((el) => {
-      if (el.type === 2) el.type = "Servicio";
-      return {
-        ...el
-      };
-    });
-  console.log(dataCategories);
+  // const dataCategories = data?.filter((x) => x.type === 2);
+  // ?.map((el) => {
+  //   if (el.type === 2) el.type = "Servicio";
+  //   return {
+  //     ...el
+  //   };
+  // });
+
   const mutationSaveCategory = useMutation({
     mutationFn: SaveCategory,
     onError: (error, variables, context) => {
@@ -52,8 +52,8 @@ const CategoryServices = () => {
       {
         accessorKey: "name",
         header: "Categória",
-        enableEditing: true,
-        size: 100,
+        // enableEditing: true,
+        size: 50,
         muiEditTextFieldProps: {
           required: true,
           error: !!validationErrors?.name,
@@ -70,7 +70,8 @@ const CategoryServices = () => {
       {
         accessorKey: "amount",
         header: "Valor",
-        enableEditing: true,
+        size: 90,
+        // enableEditing: true,
         muiEditTextFieldProps: {
           required: true,
           type: "text",
@@ -82,23 +83,37 @@ const CategoryServices = () => {
               ...validationErrors,
               amount: undefined
             })
-        }
+        },
+        Cell: ({ cell }) => (
+
+          <Box>
+            {cell.getValue()?.toLocaleString?.("es-CO", {
+              style: "currency",
+              currency: "COP",
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0
+            })}
+          </Box>
+        )
       },
       {
         accessorKey: "type",
         header: "Tipo categória",
         editVariant: "select",
+        size: 80,
+        // accessorFn: (row) => typeCategory[0],
         editSelectOptions: typeCategory,
         muiEditTextFieldProps: {
-          required: true,
+          select: true,
+          //required: true,
           error: !!validationErrors?.type,
-          helperText: validationErrors?.type,
+          helperText: validationErrors?.type
           //remove any previous validation errors when user focuses on the input
-          onFocus: () =>
-            setValidationErrors({
-              ...validationErrors,
-              type: undefined
-            })
+          // onFocus: () =>
+          //   setValidationErrors({
+          //     ...validationErrors,
+          //     type: undefined
+          //   })
         }
       }
     ],
@@ -113,17 +128,17 @@ const CategoryServices = () => {
   function validateCategory(category) {
     console.log("Datos ", category);
     return {
-      name: !validateRequired(category.name)
+      name: !validateRequired(category?.name)
         ? "La categoria es requerida"
-        : !validateOnlyletters(category.name)
+        : !validateOnlyletters(category?.name)
         ? "No se admiten número o carácteres espaeciales"
         : "",
-      amount: !validateRequired(category.amount)
+      amount: !validateRequired(category?.amount?.toString())
         ? "el valor Requiredo"
-        : !validateOnlNumbers(category.amount)
+        : !validateOnlNumbers(category?.amount)
         ? "Solo se admiten números"
         : "",
-      type: !validateRequired(category.type) ? "El tipo es requerido" : ""
+      type: !validateRequired(category?.type) ? "El tipo es requerido" : ""
     };
   }
 
@@ -157,7 +172,7 @@ const CategoryServices = () => {
         alignContent: "center",
         alignItems: "center"
       }}
-      style={{ marginLeft: "-70%" }}
+      style={{ marginLeft: "-80%" }}
     >
       <Tooltip title="Editar">
         <IconButton onClick={() => table.setEditingRow(row)}>
@@ -199,22 +214,23 @@ const CategoryServices = () => {
   };
 
   const rowCanceSave = ({ table }) => {
-    if (dataCategories.length === 0) {
-      queryClient.invalidateQueries("categories");
-      setValidationErrors({});
-    } else {
-      table.setEditingRow(null);
-    }
+    // if (dataCategories.length === 0) {
+    //   queryClient.invalidateQueries("categories");
+    //   setValidationErrors({});
+    // } else {
+    //   table.setEditingRow(null);
+    // }
+    setValidationErrors({});
   };
 
   const handleUpdateCategory = ({ values, row, table }) => {
+    console.log("falta la accion1", values.amount);
     const newValidationErrors = validateCategory(values);
-    console.log("falta la accion1", newValidationErrors);
-    // if (Object.values(newValidationErrors).some((error) => error)) {
-    //   console.log("falta la accion1", newValidationErrors);
-    //   setValidationErrors(newValidationErrors);
-    //   return;
-    // }
+    if (Object.values(newValidationErrors).some((error) => error)) {
+      console.log("falta la accion1", newValidationErrors);
+      setValidationErrors(newValidationErrors);
+      return;
+    }
     // setValidationErrors({});
     // console.log("falta la accion");
     return;
@@ -224,7 +240,7 @@ const CategoryServices = () => {
     <Grid style={{ margin: "10px" }} marginTop={10}>
       <TableComponentProvider
         columns={columns}
-        data={dataCategories}
+        data={data}
         isLoading={isLoadingCategories ? true : false}
         enableRowSelection={true}
         renderRowActions={renderRowActions}

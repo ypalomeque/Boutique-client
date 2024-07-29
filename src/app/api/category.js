@@ -5,6 +5,11 @@ export const getCategoriesApi = async () => {
     return data
 }
 
+export const getCategoriesApiQuery = async () => {
+    let { data: { data } } = await BOUTIQUE_API.get('categorias?type=2')
+    return data
+}
+
 export const saveCategoryApi = async (payload) => {
     let { data: { data } } = await BOUTIQUE_API.post('categoria', payload)
     return data

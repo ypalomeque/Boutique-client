@@ -1,7 +1,21 @@
 import { Card, Grid } from "@mui/material";
+import { GetOrders } from "app/hooks/orders";
+import moment from "moment";
+import "moment-timezone";
 import React from "react";
 
 const Sales = () => {
+  const { data: dataOrders } = GetOrders();
+  // let newDataOrders = dataOrders?.map((x) => {
+  //   x.date = moment.tz(x.date, "America/Bogota");
+  //   return { ...x };
+  // });
+  console.log(
+    "Orders >>>>>>>>>>>>>> ",
+    dataOrders && moment(dataOrders[0]?.date).tz("America/Bogota").format()
+  );
+  //console.log("Orders >>>>>>>>>>>>>> ", moment.tz(dataOrders[0]?.date, "America/Bogota"));
+
   return (
     <Grid container xs={12} sm={12} md={12} style={{ textAlign: "center" }} marginTop={2}>
       <Grid xs={12} md={3}>

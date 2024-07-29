@@ -671,7 +671,7 @@ const Product = () => {
           isLoading={isLoadinProducts ? true : false}
           renderRowActionMenuItems={renderRowActionMenuItems}
           columnPinning={{
-            left: ["mrt-row-expand", "mrt-row-select"],
+            left: ["mrt-row-expand", "mrt-row-select", "name"],
             right: ["mrt-row-actions"],
             expanded: true
           }}

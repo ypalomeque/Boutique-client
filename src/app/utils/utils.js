@@ -2155,7 +2155,7 @@ export const typeCategory = [
 
 export function formatPrice(val) {
   try {
-    if (val.toString().includes(",")) {
+    if (val?.toString()?.includes(",")) {
       val = val.replaceAll(',', '')
     }
     if (val > 0) {
@@ -2203,18 +2203,8 @@ export default function LoadingSpinner() {
   );
 }
 
-export function calValueDiscountOnProduct(product) {
-  let valuePrice = Number(product.salePrice * product.quantity)
-  let valueDisc = Number(product.discount * product.quantity)
-  let total = valuePrice - valueDisc
-  console.log(valueDisc, total);
-  if (valueDisc === 0) {
-    return 0
-  }
-  return total
-}
 
-export function calValuePercentajeDicountOfWholesale(total, valueDisc) {
+export function calValuePercentageDicountOfWholesale(total, valueDisc) {
 
   if (total.toString().includes(",")) {
     total = total.replaceAll(',', '');
@@ -2228,67 +2218,106 @@ export function calValuePercentajeDicountOfWholesale(total, valueDisc) {
 
   const percentage = (valueDisc / total) * 100;
 
+  if (isNaN(percentage)) {
+    return 0
+  }
+
   return percentage.toFixed(2);
 }
 
-export const dataC = [
-  {
-    "_id": "6556e196e7e7723bceb14cc3",
-    "name": "SKINCARE",
-    "type": 1,
-    "__v": 0
-  },
-  {
-    "_id": "6556e1ade7e7723bceb14cc5",
-    "name": "LABIOS",
-    "type": 1,
-    "__v": 0
-  },
-  {
-    "_id": "65cadef90123bab88ceada7f",
-    "name": "Pestañas pelo a pelo",
-    "amount": 15000,
-    "type": 2,
-    "__v": 0
-  },
-  {
-    "_id": "6556e16be7e7723bceb14cbe",
-    "name": "OJOS",
-    "type": 1,
-    "__v": 0
-  },
-  {
-    "_id": "65502dbf8f7edc4b8fb4573c",
-    "name": "PIEL",
-    "description": "Productos para el cuidado del rostro",
-    "type": 1,
-    "__v": 0
-  },
-  {
-    "_id": "6556e189e7e7723bceb14cc1",
-    "name": "CEJAS",
-    "type": 1,
-    "__v": 0
-  },
-  {
-    "_id": "6659ec06be4023665014f780",
-    "name": "Maquillaje sencillo",
-    "amount": 30000,
-    "type": 2,
-    "__v": 0
-  },
-  {
-    "_id": "665a9f0dc0c8a378a8fec69e",
-    "name": "Cejas henna",
-    "amount": 12000,
-    "type": 2,
-    "__v": 0
-  },
-  {
-    "_id": "666329c6e9a0c01610878f79",
-    "name": "Cejas negras",
-    "amount": 25000,
-    "type": 2,
-    "__v": 0
+export function calValueDiscountOnProduct(product) {
+  let valuePrice = Number(product.salePrice * product.quantity)
+  let valueDisc = Number(product.discount * product.quantity)
+  let total = valuePrice - valueDisc
+  // console.log(valueDisc, total);
+  if (valueDisc === 0) {
+    return 0
   }
-]
+  return total
+}
+
+export function calValuePercentageDicountOfProducts(total, valueDisc) {
+
+  if (total.toString().includes(",")) {
+    total = total.replaceAll(',', '');
+  }
+  if (valueDisc.toString().includes(",")) {
+    valueDisc = valueDisc.replaceAll(',', '');
+  }
+
+  total = parseFloat(total);
+  valueDisc = parseFloat(valueDisc);
+
+  const percentage = (valueDisc / total) * 100;
+
+  if (isNaN(percentage)) {
+    return 0
+  }
+
+  return percentage.toFixed(2);
+}
+
+export let dataC = async () => {
+  let da = [
+    {
+      "_id": "6556e196e7e7723bceb14cc3",
+      "name": "SKINCARE",
+      "type": 1,
+      "__v": 0
+    },
+    {
+      "_id": "6556e1ade7e7723bceb14cc5",
+      "name": "LABIOS",
+      "type": 1,
+      "__v": 0
+    },
+    {
+      "_id": "65cadef90123bab88ceada7f",
+      "name": "Pestañas pelo a pelo",
+      "amount": 15000,
+      "type": 2,
+      "__v": 0
+    },
+    {
+      "_id": "6556e16be7e7723bceb14cbe",
+      "name": "OJOS",
+      "type": 1,
+      "__v": 0
+    },
+    {
+      "_id": "65502dbf8f7edc4b8fb4573c",
+      "name": "PIEL",
+      "description": "Productos para el cuidado del rostro",
+      "type": 1,
+      "__v": 0
+    },
+    {
+      "_id": "6556e189e7e7723bceb14cc1",
+      "name": "CEJAS",
+      "type": 1,
+      "__v": 0
+    },
+    {
+      "_id": "6659ec06be4023665014f780",
+      "name": "Maquillaje sencillo",
+      "amount": 30000,
+      "type": 2,
+      "__v": 0
+    },
+    {
+      "_id": "665a9f0dc0c8a378a8fec69e",
+      "name": "Cejas henna",
+      "amount": 12000,
+      "type": 2,
+      "__v": 0
+    },
+    {
+      "_id": "666329c6e9a0c01610878f79",
+      "name": "Cejas negras",
+      "amount": 25000,
+      "type": 2,
+      "__v": 0
+    }
+  ]?.filter((x) => x.type === 2)
+  return da
+}

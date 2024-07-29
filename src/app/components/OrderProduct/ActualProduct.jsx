@@ -2,12 +2,23 @@ import { Grid } from "@mui/material";
 import { calValueDiscountOnProduct, formatPrice } from "app/utils/utils";
 import React, { useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { ListGroup, ListGroupItem } from "reactstrap";
+import { Label, ListGroup, ListGroupItem, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { NotificationAlert } from "../NotificationAlert/Notification";
+import { faTrashCan, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faFloppyDisk } from "@fortawesome/free-regular-svg-icons";
+import { ModalComponent } from "../Modal/ModalComponent";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ButtonComponent } from "../Button/ButtonComponent";
 
 export const ActualProduct = ({ key, product, deleteProduct, updateQunatity }) => {
   const [eventAddQuantity, setEventAddQuantity] = useState(false);
   const [_quantity, setQuantity] = useState(product.quantity);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const modalDeleteItem = async () => {
+    setIsOpen(!isOpen);
+  };
+
   function handleQuantity(e) {
     const quantity = parseInt(e.target.value);
     if (quantity === 0) {
@@ -49,7 +60,7 @@ export const ActualProduct = ({ key, product, deleteProduct, updateQunatity }) =
             <Grid md={7} sm={8} xs={8}>
               <Grid md={12} item display={"flex"}>
                 <text class="txt-product" tyle={{ fontSize: "13px" }}>
-                  <text style={{ fontSize: "13px" }}>Paleta Beauty glazed</text>
+                  <text style={{ fontSize: "13px" }}>{product.name}</text>
                 </text>
               </Grid>
               <Grid item display={"flex"}>
@@ -130,7 +141,7 @@ export const ActualProduct = ({ key, product, deleteProduct, updateQunatity }) =
                       className="tooltip-content mt-tooltip-car-shipping-delete"
                       style={{ fontSize: "12px", display: "flex" }}
                     >
-                      Eliminar item cantidad
+                      Eliminar item
                     </span>
                     <svg
                       stroke="currentColor"
@@ -141,6 +152,7 @@ export const ActualProduct = ({ key, product, deleteProduct, updateQunatity }) =
                       width="28"
                       xmlns="http://www.w3.org/2000/svg"
                       style={{ color: "rgb(199, 82, 193)", cursor: "pointer" }}
+                      onClick={modalDeleteItem}
                     >
                       <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z"></path>
                       <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z"></path>
@@ -176,6 +188,42 @@ export const ActualProduct = ({ key, product, deleteProduct, updateQunatity }) =
           </Grid>
         </Grid>
       </ListGroupItem>
+      <ModalComponent open={isOpen} title={"Eliminar Item"} w100Modal={"w15Modal"}>
+        <ModalHeader className="modal-title header-tyles">
+          <Grid container display={"flex"} justifyContent={"space-between"}>
+            <Grid>
+              <FontAwesomeIcon icon={faTrashCan} style={{ fontSize: "18px" }} />{" "}
+              <span>Eliminar Producto</span>
+            </Grid>
+            <Grid title={"Cerrar"} style={{ cursor: "pointer" }}>
+              <FontAwesomeIcon icon={faXmark} onClick={modalDeleteItem} />
+            </Grid>
+          </Grid>
+        </ModalHeader>
+        <ModalBody>
+          <Grid className="text-center">
+            <Label className="text-center" for="exampleEmail">
+              Desea eliminar este producto{" "}
+              <span className="font-bold">
+                {product.name} <span style={{ fontSize: "18px" }}>?</span>
+              </span>
+            </Label>
+          </Grid>
+        </ModalBody>
+        <ModalFooter>
+          <Grid style={{ marginTop: "-25px" }}>
+            <ButtonComponent
+              classButton="button-ppal"
+              title={"Aceptar"}
+              icon={<FontAwesomeIcon style={{ marginRight: "7px" }} icon={faFloppyDisk} />}
+              handle={() => {
+                deleteProduct(product);
+                modalDeleteItem();
+              }}
+            />
+          </Grid>
+        </ModalFooter>
+      </ModalComponent>
     </ListGroup>
   );
 };

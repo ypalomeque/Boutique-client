@@ -99,6 +99,11 @@ body {
     color: #fff !important;
 }
 
+.cant-products-cart>span>span {
+    background-color: rgb(199, 82, 193) !important;
+    color: #fff !important;
+}
+
 ::-webkit-scrollbar-track {
     background-color: transparent;
 }
@@ -162,6 +167,11 @@ body {
     min-width: 15% !important;
 }
 
+
+.w25Modal {
+    min-width: 25% !important;
+}
+
 .modal-header {
     display: flex;
     flex-shrink: 0;
@@ -182,6 +192,20 @@ body {
     background: #c752c1;
     color: #fff !important;
     height: 23px !important;
+}
+
+.hr-detail-payment {
+    height: 2px;
+    width: 50%;
+    margin: 0 auto 5px;
+    color: #ed7aed !important;
+    font-weight: 700;
+    background-color: #e679e0 !important;
+}
+
+.form-control-efective:disabled {
+    background-color: #e9ecef !important;
+    opacity: 1;
 }
 
 /* FIN ESTILOS MODALS */
@@ -456,6 +480,28 @@ input#choose_file {
     border-color: #a7069f !important;
 }
 
+.css-16ogjn4 .material-icons {
+    color: #181518 !important;
+
+}
+
+/* Estilos color letra menu navegación */
+.css-sukebr .material-icons {
+    color: #181518 !important;
+}
+
+/* Estilos color letra menu navegación */
+.css-16ogjn4>a>button,
+.css-sukebr>button,
+.css-y5vkr9 {
+    color: #c712c1 !important;
+}
+
+/* Estilos fondo footer */
+.css-xgn4r0-MuiPaper-root-MuiAppBar-root {
+    background: #f5edf129 !important;
+}
+
 [aria-label="Delete"] {
     color: #c752c1 !important;
 }
@@ -477,14 +523,16 @@ input#choose_file {
     margin-top: 20px;
 }
 
+
 .tooltip1:hover .tooltip-content {
     visibility: visible !important;
 }
 
 .mt-tooltip-car-shipping-delete {
-    width: 60% !important;
-    opacity: .7 !important;
-    margin-left: -50% !important;
+    margin-top: 18px !important;
+    width: 27% !important;
+    opacity: .9 !important;
+    margin-left: -29% !important;
 }
 
 .select-order-category {
@@ -593,6 +641,11 @@ input#choose_file {
     box-shadow: 0 0 1px #ec85e6 !important;
     transition-property: color !important;
     transition-duration: .5s !important;
+}
+
+.detail-products-cart {
+    height: 33vh;
+    overflow: auto;
 }
 
 .button-ppal-w100 {

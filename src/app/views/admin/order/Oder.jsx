@@ -2,7 +2,11 @@ import React from "react";
 import {
   faCartPlus,
   faCirclePlus,
+  faCreditCard,
+  faDollarSign,
+  faHandHoldingDollar,
   faMagnifyingGlass,
+  faMoneyCheckDollar,
   faRotate,
   faSave,
   faTruckArrowRight,
@@ -11,7 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faFloppyDisk } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Badge, Grid, Typography } from "@mui/material";
+import { Badge, Box, Grid, Typography } from "@mui/material";
 import { ActualProduct } from "app/components/OrderProduct";
 import { OrderProduct } from "app/components/OrderProduct/OrderProduct";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -30,7 +34,8 @@ import { GetCostDomicilies } from "app/hooks/costDomicilies";
 import { GetDepartamentsMunicipies } from "app/hooks/departmentsMunicipies";
 import LoadingSpinner, {
   calValueDiscountOnProduct,
-  calValuePercentajeDicountOfWholesale,
+  calValuePercentageDicountOfProducts,
+  calValuePercentageDicountOfWholesale,
   findValueInArray,
   findValueInObject,
   formatPrice
@@ -44,29 +49,41 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { GetRoles } from "app/hooks/roles";
 import { GetIndicativesCountriesAndCities } from "app/hooks/indicativesCountriesAndCities";
 import DatepickerMui from "../../../components/DatePicker/DatePicker";
+import { GetMethodpayments } from "app/hooks/methodpayments";
+import { GetGeneralConfigurations } from "app/hooks/generalConfigurations";
+import { SaveOrder } from "app/hooks/order";
 
 const Oder = () => {
   const [idEdit] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenModalPartialPayment, setIsOpenModalPartialPayment] = useState(false);
+  const [isOpenOrderCart, setIsOpenOrderCart] = useState(false);
   const [isOpenMWholeSales, setIsOpenMWholeSales] = useState(false);
   const [isOpenMWholeSalesDiscount, setIsOpenMWholeSalesDiscount] = useState(false);
   const [page, setPage] = useState(1);
+  const [forPage, setForPage] = useState(5);
   const [isOpenModDomicile, setIsOpenModDomicile] = useState(false);
   const [isOpenModShipping, setIsOpenModShipping] = useState(false);
   const [total, setTotal] = useState(0);
+  const [efective, setEfective] = useState(0);
+  const [moneyBack, setMoneyBack] = useState(0);
+  const [moneyBackClient, setMoneyBackClient] = useState(0);
+  const [valueTransference, setValueTransference] = useState(0);
   const [discountOfProducts, setDiscountOfProducts] = useState(0);
   const [discountOfSales, setDiscountOfSales] = useState(0);
   const [wholesaleDiscont, setWholesaleDiscount] = useState(0); // discount on wholesale
-  const [percentajeOfWholeSale, setPercentajeOfWholeSale] = useState(0);
   const [totalProducsCart, setTotalProducsCart] = useState(0);
   const [checkedDomicilie, setCheckedDomicilie] = useState(false);
   const [checkedShipping, setCheckedShipping] = useState(false);
   const [isPackaging, setIsPackaging] = useState(true);
+  const [methodPayment, setMethodPayment] = useState("");
   const [productsOrderList, setProductsOrderList] = useState([]);
   const [municipiesList, setMunicipiesList] = useState([]);
   const [search, setSearch] = useState("");
   const [categoryValue, setCategoryValue] = useState("");
   const [client, setClient] = useState("");
+  const [clientDetailOrder, setClientDetailOrder] = useState("");
+
   const modalUser = async () => {
     setIsOpen(!isOpen);
   };
@@ -79,13 +96,21 @@ const Oder = () => {
     setIsOpenMWholeSalesDiscount(!isOpenMWholeSalesDiscount);
   };
 
+  const modalPartialPayment = async () => {
+    setIsOpenModalPartialPayment(!isOpenModalPartialPayment);
+  };
+
+  const modalOrderCart = async () => {
+    setIsOpenOrderCart(!isOpenOrderCart);
+  };
+
   let noData = false;
   let categoriesMap = [];
   let result = [];
   //const maximum = Pokemons.length / porPagina;
-  const maximum = 4;
   let domiciliaryUsers = [];
   let clients = [];
+  let methodpayments = [];
   const stylesSelect = {
     control: (baseStyles, state) => ({
       ...baseStyles,
@@ -145,6 +170,9 @@ const Oder = () => {
   const { data: users } = GetUsers();
   const { data: departamentsMunicipies, isLoading: isLoadingDepMuni } = GetDepartamentsMunicipies();
   const { data: dataIndicatives } = GetIndicativesCountriesAndCities();
+  const { data: dataMethodpayments } = GetMethodpayments();
+  const { data: generalConfigurations } = GetGeneralConfigurations();
+
   const queryClient = useQueryClient();
 
   domiciliaryUsers = findValueInArray(users, { rol: { name: "Domiciliary" } })?.map((x) => ({
@@ -162,8 +190,125 @@ const Oder = () => {
   categoriesMap = categories
     ?.filter((el) => el.type !== 2)
     ?.map((x) => ({ value: x._id, label: x.name }));
+
   categoriesMap?.push({ value: "all", label: "TODO" });
-  //console.log("Show Users >>>> ", clients);
+
+  methodpayments = dataMethodpayments?.map((x) => ({ value: x._id, label: x.name }));
+
+  const validDataAndSendRequest = () => {
+    setEfective(getTotal().total);
+
+    if (productsOrderList.length === 0) {
+      NotificationAlert("info", "Pedido", "Por favor selecciona un producto");
+    } else if (!client) {
+      NotificationAlert("info", "Pedido", "Por favor selecciona el cliente");
+    } else if (!methodPayment) {
+      NotificationAlert("info", "Pedido", "Por favor selecciona el método de pago");
+    } else {
+      modalPartialPayment();
+    }
+  };
+
+  const calValueTransference = (e) => {
+    e = e.target.value.toString().replaceAll(",", "");
+    setValueTransference(e);
+    if (e <= getTotal().total) {
+      let copyTotal = getTotal().total;
+      setEfective(copyTotal - e);
+    }
+  };
+
+  const calValueMoeyBack = (e) => {
+    e = e.target.value.toString().replaceAll(",", "");
+    if (efective > 0) {
+      setMoneyBack(e);
+      if (e > efective) {
+        let copyTotal = efective;
+        setMoneyBackClient(e - copyTotal);
+      }
+    }
+    if (e === 0 || e === "0" || e === "") {
+      setMoneyBack(0);
+      setMoneyBackClient(0);
+    }
+  };
+
+  const saveOrder = () => {
+    let data = {};
+    data.products = productsOrderList;
+    data.user = { _id: "6699d818a21db261d880377b" };
+    data.client = findValueInObject(users, { _id: client });
+    data.paymentMethod = find(methodpayments, {
+      value: methodPayment
+    })?.label;
+    data.subTotal = getTotal().subtotal;
+    data.totalSales = getTotal().total;
+    data.discountForProducts = discountOfProducts ? discountOfProducts.replaceAll(",", "") : 0;
+    data.discountForSale = discountOfSales ? discountOfSales.replaceAll(",", "") : 0;
+    data.discountWoleSales = wholesaleDiscont ? wholesaleDiscont.replaceAll(",", "") : 0;
+    data.percentageDiscountOnProducts = 0;
+    data.percentageDiscountOnSale = calValuePercentageDicountOfWholesale(
+      getTotal().total,
+      discountOfSales
+    );
+    data.percentageDiscountOnWoleSales = calValuePercentageDicountOfWholesale(
+      getTotal().total,
+      wholesaleDiscont
+    );
+    data.iva = 0;
+    data.cantProducts = totalProducsCart;
+    if (valueTransference > 0 || valueTransference > "0") {
+      data.payementPartial = {
+        paymentMethods: [
+          find(methodpayments, {
+            value: methodPayment
+          })?.label,
+          "TRANSFERENCIA"
+        ],
+        efective: efective,
+        transference: valueTransference
+      };
+    }
+    if (checkedDomicilie) {
+      data.domicilie = {
+        departament: find(departamentsMunicipies?.departamentsFilter, {
+          value: domicilieFormik.values.departament
+        })?.label,
+        municipie: municipiesList[domicilieFormik.values.municipie]?.label?.toString(),
+        costDomiciliary: domicilieFormik.values.costDomicilie,
+        domiciliary: {
+          _id: domicilieFormik.values.domiciliary,
+          fullName: find(domiciliaryUsers, {
+            value: domicilieFormik.values.domiciliary
+          })?.label
+        },
+        shippingCost: domicilieFormik.values.shippingCost,
+        adress: domicilieFormik.values.adress
+      };
+    }
+    if (checkedShipping) {
+      data.shipping = {
+        departament: find(departamentsMunicipies?.departamentsFilter, {
+          value: shippingFormik.values.departament
+        })?.label,
+        municipie: municipiesList[shippingFormik.values.municipie]?.label?.toString(),
+        costOperation: shippingFormik.values.operationCost,
+        shippingCost: shippingFormik.values.shippingCost,
+        adress: shippingFormik.values.adress
+      };
+    }
+    if (isPackaging === false) {
+      if (generalConfigurations.length > 0 && generalConfigurations[0].valuePacking) {
+        data.packing = generalConfigurations[0].valuePacking;
+      } else {
+        data.packing = 0;
+      }
+    } else {
+      data.packing = 0;
+    }
+    console.log(data);
+    mutationSaveOrder.mutate({ data });
+  };
 
   const addProduct = (product) => {
     let sum = parseInt(total);
@@ -172,11 +317,15 @@ const Oder = () => {
     let totalProds = 0;
     let index = findIndexItem(product._id);
     if (index !== -1) {
-      copy[index].qantity = copy[index].qantity + 1;
+      // copy[index].qantity = copy[index].qantity + 1;
+      return;
     } else {
       copy.push(product);
     }
     discOfProducts = calValueDiscountOnProduct(product);
+    if (discOfProducts) {
+      product.percentageOfProducts = (product.discount * product.quantity) / 100;
+    }
     sum = sum + product.salePrice;
     totalProds = copy.reduce((sum, cur) => sum + cur.quantity, 0);
     setProductsOrderList(copy);
@@ -196,10 +345,14 @@ const Oder = () => {
   function updateProduct(product, quantity) {
     let sum = parseInt(total);
     let copy = [...productsOrderList];
+    let discOfProducts = parseInt(discountOfProducts);
     let totalProds = 0;
     let index = findIndexItem(product._id);
     let resValue = 0;
     if (index !== -1) {
+      if (discOfProducts) {
+        copy[index].percentageOfProducts = (product.discount * product.quantity) / 100;
+      }
       const actualValue = copy[index].quantity * product.salePrice;
       const newValue = quantity * product.salePrice;
       resValue = newValue - actualValue;
@@ -208,10 +361,35 @@ const Oder = () => {
       totalProds = copy.reduce((sum, cur) => sum + cur.quantity, 0);
       setProductsOrderList(copy);
       setTotalProducsCart(totalProds);
+      setDiscountOfProducts(discOfProducts);
       setTotal(sum);
     }
   }
 
+  function deleteProduct(product) {
+    let sum = parseInt(total);
+    let copy = [...productsOrderList];
+    let totalProds = 0;
+    let index = findIndexItem(product._id);
+    if (index !== -1) {
+      sum = sum - product.salePrice * product.quantity;
+      if (copy.length > 1) {
+        totalProds = copy.reduce((sum, cur) => sum + cur.quantity, 0);
+        copy.splice(index, 1);
+      } else {
+        copy = [];
+      }
+    }
+    setProductsOrderList(copy);
+    setTotalProducsCart(totalProds);
+    setTotal(sum);
+  }
+
+  const renderDetailOrderCart = () => {
+    let cli = find(users, { _id: client });
+    setClientDetailOrder(cli);
+    modalOrderCart();
+  };
   /**Logic for create users */
   // console.log("Total", total);
   const [optionsDocumentType] = useState([
@@ -322,12 +500,28 @@ const Oder = () => {
     }
   });
 
+  const mutationSaveOrder = useMutation({
+    mutationFn: SaveOrder,
+    onError: (error, variables, context) => {
+      let { message } = error.response.data;
+      // console.log("Mostrando error", variables);
+      // console.log("Mostrando error", context);
+      NotificationAlert("error", "Registro Pedido", `${message}`);
+    },
+    onSuccess: (resp) => {
+      NotificationAlert("success", "Registro Pedido", "Registro realizado con éxito.");
+      modalPartialPayment();
+      clearData();
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    }
+  });
+
   const domicilieFormik = useFormik({
     initialValues: {
       departament: "",
       municipie: "",
-      costDomicilie: "",
-      shippingCost: "",
+      costDomicilie: "0",
+      shippingCost: "0",
       idDpartament: "",
       domiciliary: "",
       adress: ""
@@ -399,9 +593,11 @@ const Oder = () => {
   const filterByCategory = (e) => {
     setCategoryValue(e);
   };
+
   if (!categoryValue) {
     result = products;
   }
+
   if (
     categoryValue !== "all" &&
     products?.filter((x) => x?.category?.toString() === categoryValue?.toString())?.length > 0
@@ -423,6 +619,7 @@ const Oder = () => {
   if (search && result.length > 0) {
     find = products?.filter((x) => x.name.toLowerCase().includes(search.toLowerCase()));
     if (find.length > 0) {
+      console.log("RESULT ", result);
       result = find;
     } else {
       find = products?.filter((x) => x.reference.toLowerCase().includes(search.toLowerCase()));
@@ -434,25 +631,92 @@ const Oder = () => {
     }
   }
 
+  const maximum = Math.round(result?.length / forPage);
+
   const clearDataUser = () => {
     userFormik.resetForm();
     userFormik.values.email = "";
     userFormik.errors.email = false;
-    // setFile(null);
-    // setFileName("");
-    // setFileNameTemp(null);
-    // setFileTemp(null);
   };
 
   const getTotal = () => {
     let copyTotal = total;
     let subT = 0;
+    let costShipping = 0;
+    let discounts = 0;
+    let pack = 0;
     subT =
       copyTotal -
       discountOfProducts.toString().replaceAll(",", "") -
-      discountOfSales.toString().replaceAll(",", "");
-    console.log("Subtaotal ---->", subT, discountOfProducts, discountOfSales);
+      discountOfSales.toString().replaceAll(",", "") -
+      wholesaleDiscont.toString().replaceAll(",", "");
+    discounts =
+      parseInt(
+        discountOfProducts.toString().replaceAll(",", "")
+          ? discountOfProducts.toString().replaceAll(",", "")
+          : 0
+      ) +
+      parseInt(
+        discountOfSales.toString().replaceAll(",", "")
+          ? discountOfSales.toString().replaceAll(",", "")
+          : 0
+      ) +
+      parseInt(
+        wholesaleDiscont.toString().replaceAll(",", "")
+          ? wholesaleDiscont.toString().replaceAll(",", "")
+          : 0
+      );
+
+    costShipping =
+      parseInt(
+        shippingFormik.values.shippingCost
+          ? shippingFormik.values.shippingCost.toString().replaceAll(",", "")
+          : 0
+      ) +
+      parseInt(
+        shippingFormik.values.operationCost
+          ? shippingFormik.values.operationCost.toString().replaceAll(",", "")
+          : 0
+      ) +
+      parseInt(
+        domicilieFormik?.values?.costDomicilie
+          ? domicilieFormik?.values?.costDomicilie.toString().replaceAll(",", "")
+          : 0
+      ) +
+      parseInt(
+        domicilieFormik?.values?.shippingCost
+          ? domicilieFormik?.values?.shippingCost.toString().replaceAll(",", "")
+          : 0
+      );
+
+    if (isPackaging === false) {
+      if (generalConfigurations.length > 0 && generalConfigurations[0].valuePacking) {
+        pack = generalConfigurations[0].valuePacking;
+      } else {
+        pack = 0;
+      }
+    }
+    copyTotal += costShipping - discounts + pack;
     return { total: copyTotal, subtotal: subT };
+  };
+
+  const clearData = () => {
+    domicilieFormik.resetForm();
+    shippingFormik.resetForm();
+    setClient("");
+    setCategoryValue("all");
+    setCheckedDomicilie(false);
+    setCheckedShipping(false);
+    setDiscountOfProducts(0);
+    setDiscountOfSales(0);
+    setEfective(0);
+    setMoneyBack(0);
+    setMoneyBackClient(0);
+    setProductsOrderList([]);
+    setTotal(0);
+    setValueTransference(0);
+    setTotalProducsCart(0);
+    setWholesaleDiscount(0);
   };
 
   return (
@@ -574,6 +838,7 @@ const Oder = () => {
                   } else {
                     setCheckedShipping(false);
                     setIsOpenModShipping(false);
+                    shippingFormik.resetForm();
                   }
                 }}
               />
@@ -582,7 +847,7 @@ const Oder = () => {
           </ul>
         </Grid>
         <Grid xs={12} sm={5} md={5}>
-          <Pagination page={page} setPagina={setPage} maximum={maximum} />
+          <Pagination page={page} setPage={setPage} maximum={maximum} />
           {isLoadinProducts && (
             <Grid display={"flex"} alignContent={"center"} justifyContent={"center"}>
               <Typography
@@ -612,8 +877,12 @@ const Oder = () => {
       </Grid>
       <Grid container>
         <Grid xs={12} md={8} sm={8} marginTop={-1}>
-          <Grid className="text-center">
-            <OrderProduct products={result} addProduct={addProduct} />
+          <Grid className=" list-products text-center">
+            {result
+              ?.slice((page - 1) * forPage, (page - 1) * forPage + forPage)
+              ?.map((product, i) => {
+                return <OrderProduct product={product} addProduct={addProduct} i={i} />;
+              })}
           </Grid>
         </Grid>
         <Grid xs={12} md={4} sm={4} className="div-actual-order text-center">
@@ -627,7 +896,7 @@ const Oder = () => {
                 <ActualProduct
                   key={index}
                   product={value}
-                  delete={() => {}}
+                  deleteProduct={deleteProduct}
                   updateQunatity={updateProduct}
                 />
               );
@@ -692,13 +961,16 @@ const Oder = () => {
                 Categoría
               </Label> */}
               <SelectComponent
-                optionsValues={[]}
-                //loading={options?.length > 0 ? false : true}
-                loading={true}
-                valueOp={1}
-                handle={(value) => {}}
+                optionsValues={methodpayments}
+                loading={methodpayments?.length > 0 ? false : true}
+                // loading={true}
+
+                placeHolder={"MÉTODO PAGO"}
+                valueOp={methodPayment}
+                handle={(value) => {
+                  setMethodPayment(value);
+                }}
                 onBlurFn={() => {}}
-                name="category"
                 calssNameSelect={""}
                 styles={stylesSelect}
                 theme={themeSelect}
@@ -807,7 +1079,9 @@ const Oder = () => {
               <Typography>Subtotal</Typography>
             </Grid>
             <Grid item>
-              <Typography>{getTotal().subtotal ? getTotal().subtotal : "$0"}</Typography>
+              <Typography>
+                {getTotal().subtotal ? formatPrice(getTotal().subtotal) : "$0"}
+              </Typography>
             </Grid>
           </Grid>
           <Grid
@@ -868,14 +1142,20 @@ const Oder = () => {
                 //   />
                 // }
                 icon={
-                  <FontAwesomeIcon style={{ marginRight: "7px" }} icon={faRotate} spin={true} />
+                  <FontAwesomeIcon
+                    style={{ marginRight: "7px" }}
+                    icon={mutationSaveOrder.isPending ? faRotate : faFloppyDisk}
+                    spin={mutationSaveOrder.isPending ? true : false}
+                  />
                 }
                 title={"Aceptar"}
                 classButton={"button-order-save"}
+                handle={validDataAndSendRequest}
               />
             </Grid>
             <Grid style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
               <Badge
+                onClick={() => productsOrderList.length > 0 && renderDetailOrderCart()}
                 className="style-badge"
                 color="secondary"
                 badgeContent={totalProducsCart ? totalProducsCart : "0"}
@@ -1732,13 +2012,13 @@ const Oder = () => {
                 setDiscountOfSales(e.target.value);
               }}
               // onBlur={productFormik.handleBlur}
-              value={discountOfSales}
+              value={discountOfSales ? discountOfSales : 0}
               className="form-control-input-ppal"
             />
           </FormGroup>
           <Grid className="text-center">
             <Label className="text-center" for="exampleEmail">
-              {calValuePercentajeDicountOfWholesale(getTotal().total, discountOfSales)} (%)
+              {calValuePercentageDicountOfWholesale(getTotal()?.total, discountOfSales)} (%)
             </Label>
           </Grid>
         </ModalBody>
@@ -1771,16 +2051,523 @@ const Oder = () => {
                 setWholesaleDiscount(e.target.value);
               }}
               // onBlur={productFormik.handleBlur}
-              value={wholesaleDiscont}
+              value={wholesaleDiscont ? wholesaleDiscont : 0}
               className="form-control-input-ppal"
             />
           </FormGroup>
           <Grid className="text-center">
             <Label className="text-center" for="exampleEmail">
-              {calValuePercentajeDicountOfWholesale(getTotal().total, wholesaleDiscont)} (%)
+              {calValuePercentageDicountOfWholesale(getTotal().total, wholesaleDiscont)} (%)
             </Label>
           </Grid>
         </ModalBody>
+      </ModalComponent>
+      {/* Modal para pagos parciales*/}
+      <ModalComponent
+        open={isOpenModalPartialPayment}
+        title={"Pago parcial"}
+        w100Modal={"w25Modal"}
+      >
+        <ModalHeader className="modal-title header-tyles">
+          <Grid
+            container
+            display={"flex"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+            alignContent={"center"}
+          >
+            <Grid>
+              <FontAwesomeIcon icon={faMoneyCheckDollar} style={{ fontSize: "18px" }} />{" "}
+              <span>Pago parcial</span>
+            </Grid>
+            <Grid title={"Cerrar"} style={{ cursor: "pointer" }}>
+              <FontAwesomeIcon icon={faXmark} onClick={modalPartialPayment} />
+            </Grid>
+          </Grid>
+        </ModalHeader>
+        <ModalBody>
+          <Grid container md={12} xs={12}>
+            <Grid sm={6} md={6} xs={12}>
+              <FormGroup>
+                <Label for="exampleEmail">
+                  {" "}
+                  <FontAwesomeIcon icon={faDollarSign} onClick={modalPartialPayment} /> Efectivo
+                </Label>
+                <NumericFormat
+                  // placeholder="Ingrese el precio de compra"
+                  disabled={true}
+                  thousandSeparator=","
+                  allowLeadingZeros
+                  // onChange={(e) => {
+                  //   setWholesaleDiscount(e.target.value);
+                  // }}
+                  // onBlur={productFormik.handleBlur}
+                  value={efective}
+                  className="form-control-input-ppal form-control-efective"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid sm={6} md={6} xs={12}>
+              <FormGroup>
+                <Label for="exampleEmail">
+                  {" "}
+                  <FontAwesomeIcon icon={faCreditCard} onClick={modalPartialPayment} />{" "}
+                  Transferencia
+                </Label>
+                <NumericFormat
+                  // placeholder="Ingrese el precio de compra"
+                  thousandSeparator=","
+                  allowLeadingZeros
+                  onChange={calValueTransference}
+                  // onBlur={productFormik.handleBlur}
+                  value={valueTransference}
+                  className="form-control-input-ppal ml-1"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid md={12} sm={12} className="text-center">
+              <span style={{ fontWeight: "bold" }} className="text-center">
+                Calcular devuelta del cliente
+              </span>
+              <hr class="hr-detail-payment" />
+            </Grid>
+          </Grid>
+          <Grid container md={12} xs={12} marginBottom={-3}>
+            <Grid sm={6} md={6} xs={12}>
+              <FormGroup>
+                <Label for="exampleEmail"> Ingresa el monto</Label>
+                <NumericFormat
+                  // placeholder="Ingrese el precio de compra"
+                  thousandSeparator=","
+                  allowLeadingZeros
+                  onChange={calValueMoeyBack}
+                  // onBlur={productFormik.handleBlur}
+                  value={moneyBack}
+                  className="form-control-input-ppal ml-1"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid sm={6} md={6} xs={12}>
+              <Label for="exampleEmail"></Label>
+              <FormGroup>
+                <Label className="ml-16 mt-3" for="exampleEmail">
+                  {" "}
+                  {moneyBackClient ? formatPrice(moneyBackClient) : "$0"}
+                </Label>
+              </FormGroup>
+            </Grid>
+          </Grid>
+          {/* <Grid className="text-center">
+            <Label className="text-center" for="exampleEmail">
+              {calValuePercentageDicountOfWholesale(getTotal().total, wholesaleDiscont)} (%)
+            </Label>
+          </Grid> */}
+        </ModalBody>
+        <ModalFooter>
+          <Grid style={{ marginTop: "-25px" }}>
+            <ButtonComponent
+              classButton="button-ppal"
+              title={"Aceptar"}
+              icon={<FontAwesomeIcon style={{ marginRight: "7px" }} icon={faFloppyDisk} />}
+              handle={() => {
+                saveOrder();
+              }}
+            />
+          </Grid>
+        </ModalFooter>
+      </ModalComponent>
+      {/* Modal para ver el carrito */}
+      <ModalComponent open={isOpenOrderCart} title={"Detalle pedido"} w100Modal={"w100Modal"}>
+        <ModalHeader className="modal-title header-tyles">
+          <Grid
+            container
+            display={"flex"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+            alignContent={"center"}
+          >
+            <Grid>
+              <FontAwesomeIcon icon={faCartPlus} style={{ fontSize: "18px" }} />{" "}
+              <span>Detalle pedido</span>
+            </Grid>
+            <Grid title={"Cerrar"} style={{ cursor: "pointer" }}>
+              <FontAwesomeIcon icon={faXmark} onClick={modalOrderCart} />
+            </Grid>
+          </Grid>
+        </ModalHeader>
+        <ModalBody>
+          <Grid container md={12} xs={12}>
+            <Grid md={6} sm={6} className="">
+              <Grid className="text-center">
+                <span style={{ fontWeight: "bold" }}>Datos del cliente</span>
+                <hr class="hr-detail-payment" style={{ width: "80%" }} />
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                style={{ marginTop: "-4px" }}
+                className="mb-1"
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Nombre</Typography>
+                </Grid>
+                <Grid item marginRight={2}>
+                  <Typography>{clientDetailOrder?.fullName}</Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                style={{ marginTop: "-4px" }}
+                className="mb-1"
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Documento</Typography>
+                </Grid>
+                <Grid item marginRight={2}>
+                  <Typography>{clientDetailOrder?.documentNumber}</Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                style={{ marginTop: "-4px" }}
+                className="mb-1"
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Tipo documento</Typography>
+                </Grid>
+                <Grid item marginRight={2}>
+                  <Typography>
+                    {
+                      findValueInObject(optionsDocumentType, {
+                        value: clientDetailOrder?.documentType
+                      })?.label
+                    }
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                style={{ marginTop: "-4px" }}
+                className="mb-1"
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Teléfono</Typography>
+                </Grid>
+                <Grid item marginRight={2}>
+                  <Typography>{clientDetailOrder?.phone}</Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                style={{ marginTop: "-4px" }}
+                className="mb-1"
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Indicativo</Typography>
+                </Grid>
+                <Grid item marginRight={2}>
+                  <Typography>
+                    {
+                      findValueInObject(dataIndicatives, {
+                        value: clientDetailOrder?.indicative
+                      })?.label
+                    }
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                style={{ marginTop: "-4px" }}
+                className="mb-1"
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>E-mail</Typography>
+                </Grid>
+                <Grid item marginRight={2}>
+                  <Typography>{clientDetailOrder?.email}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid md={6} sm={6} className="">
+              <Grid className="text-center">
+                <span style={{ fontWeight: "bold" }}>Datos sobre el pedido</span>
+                <hr class="hr-detail-payment" style={{ width: "80%" }} />
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Cantidad productos</Typography>
+                </Grid>
+                <Grid item className="stock-up mt-2">
+                  <Badge color="secondary" badgeContent={totalProducsCart}></Badge>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Empaque</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>
+                    {isPackaging === false &&
+                    generalConfigurations.length > 0 &&
+                    generalConfigurations[0].valuePacking
+                      ? formatPrice(generalConfigurations[0].valuePacking)
+                      : "$0"}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Porcentaje descuento sobre Productos</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>{"0%"}</Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Descuento sobre productos</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>
+                    {discountOfProducts ? discountOfProducts.replaceAll(",", "") : "$0"}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Porcentaje descuento sobre la venta</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>
+                    {calValuePercentageDicountOfWholesale(getTotal().total, discountOfSales)}%
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Descuento sobre venta</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>{discountOfSales ? discountOfSales : "$0"}</Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Porcentaje descuento al por mayor</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>
+                    {calValuePercentageDicountOfWholesale(getTotal().total, wholesaleDiscont)}%
+                  </Typography>
+                </Grid>
+              </Grid>
+              <Grid
+                display={"flex"}
+                justifyContent={"space-between"}
+                // style={{ marginTop: "-4px" }}
+              >
+                <Grid item className="cursor-pointer">
+                  <Typography>Descuento al por mayor</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography>{wholesaleDiscont ? wholesaleDiscont : "$0"}</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid className="text-center">
+            <span style={{ fontWeight: "bold" }}>Datos productos</span>
+            <hr class="hr-detail-payment" style={{ width: "80%" }} />
+          </Grid>
+          <Grid>
+            <Grid className="detail-products-cart">
+              <table class="table striped bordered text-center">
+                <tbody>
+                  <td>CANTIDAD.</td>
+                  <td scope="col">PRODUCTO</td>
+                  <td scope="col">UNIDAD.</td>
+                  <td scope="col">TOTAL</td>
+                  {productsOrderList?.map((product) => (
+                    <tr>
+                      <td>{product.quantity}</td>
+                      <td>{product.name}</td>
+                      <td>{formatPrice(product.salePrice)}</td>
+                      <td>{formatPrice(product.quantity * product.salePrice)}</td>
+                    </tr>
+                  ))}
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                      <Box
+                        component="span"
+                        sx={(theme) => ({
+                          backgroundColor: "rgb(199, 82, 193)",
+                          borderRadius: "0.25rem",
+                          color: "#fff",
+                          maxWidth: "9ch",
+                          p: "0.25rem"
+                        })}
+                      >
+                        <FontAwesomeIcon className="mr-1" icon={faHandHoldingDollar} />
+                        {/* {cell.getValue() == 0 ? "Inactivo" : "Activo"} */}
+                        {formatPrice(
+                          productsOrderList.reduce(
+                            (sum, acc) => sum + acc.quantity * acc.salePrice,
+                            0
+                          )
+                        )?.replace("$", "")}
+                      </Box>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </Grid>
+          </Grid>
+
+          {checkedDomicilie && (
+            <Grid className="text-center">
+              <span style={{ fontWeight: "bold" }}>Detalle envío domicilio</span>
+              <hr class="hr-detail-payment" style={{ width: "80%" }} />
+            </Grid>
+          )}
+          {checkedDomicilie && (
+            <Grid>
+              <table class="table striped bordered text-center">
+                <tbody>
+                  <td>DEPARTAMENTO</td>
+                  <td scope="col">MUNICIPIO</td>
+                  <td scope="col">DIRECCIÓN</td>
+                  <td scope="col">COSTO ENVÍO</td>
+                  <tr>
+                    <td>
+                      {
+                        find(departamentsMunicipies?.departamentsFilter, {
+                          value: domicilieFormik.values.departament
+                        })?.label
+                      }
+                    </td>
+                    <td>{municipiesList[domicilieFormik.values.municipie]?.label?.toString()}</td>
+                    <td>{domicilieFormik.values.adress}</td>
+                    <td>
+                      {formatPrice(
+                        Number(domicilieFormik.values.shippingCost) +
+                          Number(domicilieFormik.values.costDomicilie)
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </Grid>
+          )}
+
+          {checkedShipping && (
+            <Grid className="text-center">
+              <span style={{ fontWeight: "bold" }}>Detalle envío</span>
+              <hr class="hr-detail-payment" style={{ width: "80%" }} />
+            </Grid>
+          )}
+          {checkedShipping && (
+            <Grid>
+              <table class="table striped bordered text-center">
+                <tbody>
+                  <td>DEPARTAMENTO</td>
+                  <td scope="col">MUNICIPIO</td>
+                  <td scope="col">DIRECCIÓN</td>
+                  <td scope="col">COSTO OPERACIÓN</td>
+                  <td scope="col">COSTO ENVÍO</td>
+                  <td scope="col">TOTAL</td>
+                  <tr>
+                    <td>
+                      {
+                        find(departamentsMunicipies?.departamentsFilter, {
+                          value: shippingFormik.values.departament
+                        })?.label
+                      }
+                    </td>
+                    <td>{municipiesList[shippingFormik.values.municipie]?.label?.toString()}</td>
+                    <td>{shippingFormik.values.adress}</td>
+                    <td>
+                      {formatPrice(
+                        Number(shippingFormik.values.operationCost.toString().replaceAll(",", ""))
+                      )}
+                    </td>
+                    <td>
+                      {formatPrice(
+                        Number(shippingFormik.values.shippingCost.toString().replaceAll(",", ""))
+                      )}
+                    </td>
+                    <td>
+                      {formatPrice(
+                        Number(shippingFormik.values.shippingCost.toString().replaceAll(",", "")) +
+                          Number(shippingFormik.values.operationCost.toString().replaceAll(",", ""))
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </Grid>
+          )}
+          <Grid className="text-center">
+            <Box
+              component="span"
+              sx={(theme) => ({
+                backgroundColor: "rgb(199, 82, 193)",
+                borderRadius: "0.25rem",
+                color: "#fff",
+                maxWidth: "9ch",
+                p: "0.25rem"
+              })}
+            >
+              TOTAL VENTA <FontAwesomeIcon className=" ml-1 mr-1" icon={faHandHoldingDollar} />{" "}
+              {formatPrice(getTotal().total)?.replace("$", "")}
+            </Box>
+          </Grid>
+        </ModalBody>
+        {/* <ModalFooter>
+          <Grid style={{ marginTop: "-25px" }}>
+            <ButtonComponent
+              classButton="button-ppal"
+              title={"Aceptar"}
+              icon={<FontAwesomeIcon style={{ marginRight: "7px" }} icon={faFloppyDisk} />}
+              handle={() => {}}
+            />
+          </Grid>
+        </ModalFooter> */}
       </ModalComponent>
     </Grid>
   );

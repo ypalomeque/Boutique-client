@@ -8,4 +8,4 @@ import { BASE_URL_DEV, BASE_URL_PROD } from '../utils/constant'
 // axios.defaults.headers.post['ngrok-skip-browser-warning'] = true;
 // axios.defaults.headers.get['ngrok-skip-browser-warning'] = true;
 
-export const BOUTIQUE_API = axios.create({ baseURL: BASE_URL_DEV })
+export const BOUTIQUE_API = axios.create({ baseURL: BASE_URL_PROD })

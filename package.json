@@ -5,6 +5,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "winBuild": "set \"GENERATE_SOURCEMAP=false\" && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "ghp": "react-scripts build && gh-pages -d build"
@@ -51,8 +52,10 @@
     "echarts": "^5.4.3",
     "echarts-for-react": "^3.0.2",
     "formik": "^2.4.5",
+    "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "material-react-table": "^2.13.0",
+    "matx-react": "file:",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.45",
     "notistack": "^3.0.1",

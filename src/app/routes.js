@@ -13,6 +13,8 @@ import { ProductRoute } from "./views/admin/product/ProductRoute";
 import { CategoryByServicesRoute } from "./views/admin/categry/CategoryByServicesRoute";
 import { OrderRoute } from "./views/admin/order/OrderRoute";
 import { SalesRoute } from "./views/admin/sales/SalesRoute";
+import sessionRoutes from "./views/sessions/SessionRoutes";
+import SingOutRoute from "./views/singOut/SingOutRoute";
 
 // SESSION PAGES
 const NotFound = Loadable(lazy(() => import("app/views/sessions/NotFound")));
@@ -43,6 +45,7 @@ const routes = [
       CategoryByServicesRoute,
       OrderRoute,
       SalesRoute,
+      SingOutRoute,
       { path: "/dashboard/default", element: <Analytics />, auth: authRoles.admin },
       // e-chart route
       { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor }
@@ -50,10 +53,11 @@ const routes = [
   },
 
   // session pages route
-  { path: "/session/404", element: <NotFound /> },
-  { path: "/session/signin", element: <JwtLogin /> },
-  { path: "/session/signup", element: <JwtRegister /> },
-  { path: "/session/forgot-password", element: <ForgotPassword /> },
+  ...sessionRoutes,
+  // { path: "/session/404", element: <NotFound /> },
+  // { path: "/session/signin", element: <JwtLogin /> },
+  // { path: "/session/signup", element: <JwtRegister /> },
+  // { path: "/session/forgot-password", element: <ForgotPassword /> },
 
   { path: "/", element: <Navigate to="dashboard/default" /> },
   { path: "*", element: <NotFound /> }

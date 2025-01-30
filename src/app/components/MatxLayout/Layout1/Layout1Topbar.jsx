@@ -93,7 +93,7 @@ const Layout1Topbar = () => {
   const { settings, updateSettings } = useSettings();
   const { logout, user } = useAuth();
   const isMdScreen = useMediaQuery(theme.breakpoints.down("md"));
-
+  // console.log("Layout1Topbar", user);
   const updateSidebarMode = (sidebarSettings) => {
     updateSettings({ layout1Settings: { leftSidebar: { ...sidebarSettings } } });
   };
@@ -118,41 +118,40 @@ const Layout1Topbar = () => {
           </StyledIconButton>
 
           <IconBox>
-            <StyledIconButton>
+            {/* <StyledIconButton>
               <MailOutline />
             </StyledIconButton>
 
             <StyledIconButton>
               <WebAsset />
-            </StyledIconButton>
+            </StyledIconButton> */}
 
-            <StyledIconButton>
+            {/* <StyledIconButton>
               <StarOutline />
-            </StyledIconButton>
+            </StyledIconButton> */}
           </IconBox>
         </Box>
 
         <Box display="flex" alignItems="center">
-          <MatxSearchBox />
+          {/* <MatxSearchBox /> */}
 
-          <NotificationProvider>
-            <NotificationBar />
-          </NotificationProvider>
+          <NotificationProvider>{/* <NotificationBar /> */}</NotificationProvider>
 
-          <ShoppingCart />
+          {/* <ShoppingCart /> */}
 
           <MatxMenu
             menuButton={
               <UserMenu>
                 <Hidden xsDown>
                   <Span>
-                    Hi <strong>{user.name}</strong>
+                    <strong>{user.fullName}</strong>
                   </Span>
                 </Hidden>
                 <Avatar src={user.avatar} sx={{ cursor: "pointer" }} />
               </UserMenu>
-            }>
-            <StyledItem>
+            }
+          >
+            {/* <StyledItem>
               <Link to="/">
                 <Home />
                 <Span>Home</Span>
@@ -164,16 +163,16 @@ const Layout1Topbar = () => {
                 <Person />
                 <Span>Profile</Span>
               </Link>
-            </StyledItem>
+            </StyledItem> */}
 
-            <StyledItem>
+            {/* <StyledItem>
               <Settings />
               <Span>Settings</Span>
-            </StyledItem>
+            </StyledItem> */}
 
             <StyledItem onClick={logout}>
               <PowerSettingsNew />
-              <Span>Logout</Span>
+              <Span>Salir</Span>
             </StyledItem>
           </MatxMenu>
         </Box>

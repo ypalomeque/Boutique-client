@@ -1,174 +1,164 @@
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Card, Checkbox, Grid, TextField, Box, styled, useTheme } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { Formik } from "formik";
+import { useNavigate } from "react-router-dom";
+import { Grid, useTheme } from "@mui/material";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 
 import useAuth from "app/hooks/useAuth";
-import { Paragraph } from "app/components/Typography";
+import { Form, FormGroup, Input, Label } from "reactstrap";
+import { ButtonComponent } from "app/components/Button/ButtonComponent";
 
-// STYLED COMPONENTS
-const FlexBox = styled(Box)(() => ({
-  display: "flex"
-}));
-
-const ContentBox = styled("div")(() => ({
-  height: "100%",
-  padding: "32px",
-  position: "relative",
-  background: "rgba(0, 0, 0, 0.01)"
-}));
-
-const StyledRoot = styled("div")(() => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: "#1A2038",
-  minHeight: "100% !important",
-  "& .card": {
-    maxWidth: 800,
-    minHeight: 400,
-    margin: "1rem",
-    display: "flex",
-    borderRadius: 12,
-    alignItems: "center"
-  },
-
-  ".img-wrapper": {
-    height: "100%",
-    minWidth: 320,
-    display: "flex",
-    padding: "2rem",
-    alignItems: "center",
-    justifyContent: "center"
-  }
-}));
-
-// initial login credentials
-const initialValues = {
-  email: "jason@ui-lib.com",
-  password: "dummyPass",
-  remember: true
-};
-
-// form field validation schema
-const validationSchema = Yup.object().shape({
-  password: Yup.string()
-    .min(6, "Password must be 6 character length")
-    .required("Password is required!"),
-  email: Yup.string().email("Invalid Email address").required("Email is required!")
-});
+import "./logincss.css";
+import { BASE_URL_PROD, MAILFORMAT } from "app/utils/constant";
+import { NotificationAlert } from "app/components/NotificationAlert/Notification";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faArrowRightToBracket,
+  faRightToBracket,
+  faRotate
+} from "@fortawesome/free-solid-svg-icons";
+import { GetGeneralConfigurations } from "app/hooks/generalConfigurations";
 
 export default function JwtLogin() {
-  const theme = useTheme();
+  const { data: generalConfigurations } = GetGeneralConfigurations();
+  // console.log(generalConfigurations);
   const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
-  const handleFormSubmit = async (values) => {
-    setLoading(true);
-    try {
-      await login(values.email, values.password);
-      navigate("/");
-    } catch (e) {
-      setLoading(false);
+  const formikLigin = useFormik({
+    initialValues: {
+      email: "",
+      password: ""
+    },
+    validationSchema: Yup.object({
+      email: Yup.string()
+        .required("El email es requerido")
+        .matches(MAILFORMAT, "Dirección de email invàlida"),
+      password: Yup.string()
+        .min(6, "La contraseña debe de tener al menos 6 dìgitos")
+        .required("La contraseña es requerida")
+    }),
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        let { user: userLogin } = await login({
+          data: { user: { email: values.email, password: values.password } }
+        });
+        if (userLogin !== null) {
+          if (userLogin.rol.name === "User") {
+            //navigate("/pedidos");
+          }
+          if (userLogin.rol.name === "Admin") {
+            navigate("/ventas");
+          }
+        }
+      } catch (e) {
+        setLoading(false);
+        if (e.message === "Network Error") {
+          NotificationAlert(
+            "warning",
+            "Login",
+            "Lo sentimos el sistema no esta diponible en estos momentos."
+          );
+        } else {
+          NotificationAlert("error", "Login", "Usuario o contraseña inválida.");
+        }
+      }
     }
-  };
+  });
 
   return (
-    <StyledRoot>
-      <Card className="card">
-        <Grid container>
-          <Grid item sm={6} xs={12}>
-            <div className="img-wrapper">
-              <img src="/assets/images/illustrations/dreamer.svg" width="100%" alt="" />
-            </div>
-          </Grid>
-
-          <Grid item sm={6} xs={12}>
-            <ContentBox>
-              <Formik
-                onSubmit={handleFormSubmit}
-                initialValues={initialValues}
-                validationSchema={validationSchema}>
-                {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => (
-                  <form onSubmit={handleSubmit}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      type="email"
+    <Grid container>
+      <Grid className="MuiGrid-root content-login css-rfnosa">
+        <div className="wrapper">
+          <div className="inner">
+            <form action="" className="width-container">
+              <div className="content-no-img">
+                <div className="img">
+                  <img
+                    src={
+                      `${BASE_URL_PROD}archivo/${
+                        generalConfigurations && generalConfigurations[0]?.logo
+                      }`
+                        ? `${BASE_URL_PROD}archivo/${
+                            generalConfigurations && generalConfigurations[0]?.noLogo
+                          }`
+                        : `${BASE_URL_PROD}archivo/${
+                            generalConfigurations && generalConfigurations[0]?.noLogo
+                          }}`
+                    }
+                    alt=""
+                  />
+                </div>
+              </div>
+              <Grid sm={12} md={12}>
+                <Form>
+                  <FormGroup className="mb-1">
+                    <Label className="color-inputs" style={{ fontSize: "12px" }}>
+                      Email
+                    </Label>
+                    <Input
                       name="email"
-                      label="Email"
-                      variant="outlined"
-                      onBlur={handleBlur}
-                      value={values.email}
-                      onChange={handleChange}
-                      helperText={touched.email && errors.email}
-                      error={Boolean(errors.email && touched.email)}
-                      sx={{ mb: 3 }}
+                      placeholder="boutique@gmail.com"
+                      type="email"
+                      onChange={formikLigin.handleChange}
+                      onBlur={formikLigin.handleBlur}
+                      value={formikLigin.values.email}
+                      className="form-control-login place-holder"
                     />
-
-                    <TextField
-                      fullWidth
-                      size="small"
+                    {formikLigin.touched.email && formikLigin.errors.email && (
+                      <div className="error-form-login">
+                        <p>{formikLigin.touched.email && formikLigin.errors.email}</p>
+                      </div>
+                    )}
+                  </FormGroup>
+                </Form>
+              </Grid>
+              <Grid>
+                <Form>
+                  <FormGroup className="mb-1">
+                    <Label className="color-inputs" style={{ fontSize: "12px" }}>
+                      Password
+                    </Label>
+                    <Input
+                      placeholder="**********"
                       name="password"
                       type="password"
-                      label="Password"
-                      variant="outlined"
-                      onBlur={handleBlur}
-                      value={values.password}
-                      onChange={handleChange}
-                      helperText={touched.password && errors.password}
-                      error={Boolean(errors.password && touched.password)}
-                      sx={{ mb: 1.5 }}
+                      className="form-control-login place-holder"
+                      onChange={formikLigin.handleChange}
+                      onBlur={formikLigin.handleBlur}
+                      value={formikLigin.values.password}
                     />
-
-                    <FlexBox justifyContent="space-between">
-                      <FlexBox gap={1}>
-                        <Checkbox
-                          size="small"
-                          name="remember"
-                          onChange={handleChange}
-                          checked={values.remember}
-                          sx={{ padding: 0 }}
-                        />
-
-                        <Paragraph>Remember Me</Paragraph>
-                      </FlexBox>
-
-                      <NavLink
-                        to="/session/forgot-password"
-                        style={{ color: theme.palette.primary.main }}>
-                        Forgot password?
-                      </NavLink>
-                    </FlexBox>
-
-                    <LoadingButton
-                      type="submit"
-                      color="primary"
-                      loading={loading}
-                      variant="contained"
-                      sx={{ my: 2 }}>
-                      Login
-                    </LoadingButton>
-
-                    <Paragraph>
-                      Don't have an account?
-                      <NavLink
-                        to="/session/signup"
-                        style={{ color: theme.palette.primary.main, marginLeft: 5 }}>
-                        Register
-                      </NavLink>
-                    </Paragraph>
-                  </form>
-                )}
-              </Formik>
-            </ContentBox>
-          </Grid>
-        </Grid>
-      </Card>
-    </StyledRoot>
+                    {formikLigin.touched.password && formikLigin.errors.password && (
+                      <div className="error-form-login">
+                        <p>{formikLigin.touched.password && formikLigin.errors.password}</p>
+                      </div>
+                    )}
+                  </FormGroup>
+                </Form>
+              </Grid>
+              <Grid className="">
+                <ButtonComponent
+                  title={loading ? "Login..." : "Login"}
+                  classButton="button-form form-control-login"
+                  disable={loading ? true : false}
+                  icon={
+                    <FontAwesomeIcon
+                      className="mr-3"
+                      icon={loading ? faRotate : faArrowRightToBracket}
+                      spin={loading ? true : false}
+                    />
+                  }
+                  handle={formikLigin.handleSubmit}
+                />
+              </Grid>
+            </form>
+          </div>
+        </div>
+      </Grid>
+    </Grid>
   );
 }

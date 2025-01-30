@@ -27,7 +27,7 @@ export default function App() {
           </MatxTheme>
         </AuthProvider>
       </SettingsProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }

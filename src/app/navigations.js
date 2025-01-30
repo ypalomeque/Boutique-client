@@ -6,36 +6,36 @@ export const navigations = [
     name: "Stock",
     icon: "inventory",
     children: [
-      { name: "Producto", iconText: "SI", icon: 'post_add', path: "/productos" },
-      { name: "Compras", iconText: "SU", icon: 'shopping_cart', path: "/session/signup" },
-      { name: "Proveedores", iconText: "FP", icon: 'contact_phone', path: "/session/forgot-password" },
+      { name: "Productos", iconText: "SI", icon: 'post_add', path: "/productos" },
+      // { name: "Compras", iconText: "SU", icon: 'shopping_cart', path: "/session/signup" },
+      // { name: "Proveedores", iconText: "FP", icon: 'contact_phone', path: "/session/forgot-password" },
     ]
   },
-  {
-    name: "Notificaciones",
-    icon: "calendar_month",
-    children: [
-      { name: "Servicios", iconText: "SI", icon: 'room_service', path: "/session/signin" },
-      { name: "Citas", iconText: "SU", icon: 'edit_calendar', path: "/session/signup" },
-    ]
-  },
-  {
-    name: "Adminitración",
-    icon: "shield_person",
+  // {
+  //   name: "Notificaciones",
+  //   icon: "calendar_month",
+  //   children: [
+  //     { name: "Servicios", iconText: "SI", icon: 'room_service', path: "/session/signin" },
+  //     { name: "Citas", iconText: "SU", icon: 'edit_calendar', path: "/session/signup" },
+  //   ]
+  // },
+  // {
+  //   name: "Adminitración",
+  //   icon: "shield_person",
 
-    children: [
-      { name: "Movimientos", iconText: "SI", icon: 'currency_exchange', path: "/session/signin" },
-      { name: "Ver Compras", iconText: "SU", icon: 'receipt_long', path: "/session/signup" },
-    ]
-  },
-  {
-    name: "Encomiendas",
-    icon: "local_shipping",
-    children: [
-      { name: "Domicilios", iconText: "SI", icon: 'electric_moped', path: "/session/signin" },
-      { name: "Pagos Domiciliarios", iconText: "SU", icon: 'monetization_on', path: "/session/signup" },
-    ]
-  },
+  //   children: [
+  //     { name: "Movimientos", iconText: "SI", icon: 'currency_exchange', path: "/session/signin" },
+  //     { name: "Ver Compras", iconText: "SU", icon: 'receipt_long', path: "/session/signup" },
+  //   ]
+  // },
+  // {
+  //   name: "Encomiendas",
+  //   icon: "local_shipping",
+  //   children: [
+  //     { name: "Domicilios", iconText: "SI", icon: 'electric_moped', path: "/session/signin" },
+  //     { name: "Pagos Domiciliarios", iconText: "SU", icon: 'monetization_on', path: "/session/signup" },
+  //   ]
+  // },
   {
     name: "Configuraciones",
     icon: "engineering",
@@ -43,12 +43,12 @@ export const navigations = [
       {
         name: "Categorías", icon: 'border_color', path: "/session/signin",
         children: [
-          { name: "Categorías Para Producto", iconText: "SI", icon: 'post_add', path: "/categoria/productos", },
+          // { name: "Categorías Para Producto", iconText: "SI", icon: 'post_add', path: "/categoria/productos", },
           { name: "Categorías Para Servicios", iconText: "SI", icon: 'post_add', path: "/categoria/servicios", }
         ]
       },
-      { name: "Accesos", iconText: "SU", icon: 'manage_accounts', path: "/session/signup" },
-      { name: "Salir", iconText: "SU", icon: 'logout', path: "/session/signup" },
+      // { name: "Accesos", iconText: "SU", icon: 'manage_accounts', path: "/session/signup" },
+      { name: "Salir", iconText: "SU", icon: 'logout', path: "/session/sigout" },
     ]
   },
   //{ name: "Dashboard", path: "/dashboard/default", icon: "dashboard" },

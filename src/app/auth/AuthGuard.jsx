@@ -6,6 +6,7 @@ export default function AuthGuard({ children }) {
   const { isAuthenticated } = useAuth();
   const { pathname } = useLocation();
 
+  // console.log("isAuthenticated", isAuthenticated, pathname);
   if (isAuthenticated) return <>{children}</>;
 
   return <Navigate replace to="/session/signin" state={{ from: pathname }} />;

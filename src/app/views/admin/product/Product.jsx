@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCamera,
@@ -22,11 +22,11 @@ import SelectComponent from "app/components/select/SelectComponent";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { NumericFormat } from "react-number-format";
-import { BASE_URL_DEV, BASE_URL_PROD, NO_IMAGE } from "app/utils/constant";
+import { BASE_URL_PROD, NO_IMAGE } from "app/utils/constant";
 import { Delete, Edit } from "@mui/icons-material";
 import { GetCategories } from "app/hooks/categories";
 import { deleteFileService, uploadFileService } from "app/services/filesService";
-import { GetProducts, SaveProduct, UpdateProduct } from "app/hooks/products";
+import { GetProducts, SaveProduct, UpdateProduct, useMutationProduct } from "app/hooks/products";
 import moment from "moment-timezone";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { NotificationAlert } from "app/components/NotificationAlert/Notification";
@@ -49,7 +49,7 @@ const columns2 = [
           alt="Foto"
           height={30}
           src={
-            row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
+            row?.original?.photo ? `${BASE_URL_PROD}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
           }
           loading="lazy"
           style={{ borderRadius: "50%", height: "5vh", width: "20%" }}
@@ -276,7 +276,7 @@ const Product = () => {
           alt="avatar"
           height={200}
           src={
-            row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
+            row?.original?.photo ? `${BASE_URL_PROD}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
           }
           loading="lazy"
           style={{ borderRadius: "5%", height: "20vh", width: "25%" }}
@@ -452,25 +452,32 @@ const Product = () => {
     }
   });
 
-  const mutationSaveProduct = useMutation({
-    mutationFn: SaveProduct,
-    onError: (error, variables, context) => {
-      let { message } = error.response.data;
-      // console.log("Mostrando error", variables);
-      // console.log("Mostrando error", context);
-      NotificationAlert("error", "Registro Producto", `${message}`);
-    },
-    onSuccess: (resp) => {
-      NotificationAlert("success", "Registro Producto", "Registro realizado con éxito.");
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      clearData();
-      setFileTemp(null);
-      setTimeout(() => {
-        modalProducts();
-      }, 2500);
-    }
-  });
+  // const mutationSaveProduct = useMutation({
+  //   mutationFn: SaveProduct,
+  //   onError: (error, variables, context) => {
+  //     let { message } = error.response.data;
+  //     // console.log("Mostrando error", variables);
+  //     // console.log("Mostrando error", context);
+  //     NotificationAlert("error", "Registro Producto", `${message}`);
+  //   },
+  //   onSuccess: (resp) => {
+  //     NotificationAlert("success", "Registro Producto", "Registro realizado con éxito.");
+  //     queryClient.setQueryData(["products"], (prevProducts) => prevProducts.concat(resp));
+  //     queryClient.invalidateQueries({ queryKey: ["products"] });
+  //     clearData();
+  //     setFileTemp(null);
+  //     setTimeout(() => {
+  //       modalProducts();
+  //     }, 2500);
+  //   }
+  // });
 
+  const {
+    mutate: mutateProduct,
+    isPending: isPendingSaveProduct,
+    isSuccess,
+    status
+  } = useMutationProduct();
   const mutationUpdateProduct = useMutation({
     mutationFn: UpdateProduct,
     onError: (error, variables, context) => {
@@ -567,7 +574,7 @@ const Product = () => {
       if (idEdit) {
         mutationUpdateProduct.mutate([{ data }, idEdit]);
       } else {
-        mutationSaveProduct.mutate({ data });
+        mutateProduct({ data });
       }
     }
   });
@@ -609,10 +616,6 @@ const Product = () => {
 
   const clearData = () => {
     productFormik.resetForm();
-    setFile(null);
-    setFileName("");
-    setFileNameTemp(null);
-    setFileTemp(null);
   };
 
   const handleUpdateFile = () => {
@@ -632,13 +635,22 @@ const Product = () => {
     setIdEdit(data?._id);
     if (data?.photo) {
       setFileName(data?.photo);
-      setFileTemp(`${BASE_URL_DEV}archivo/${data.photo}`);
+      setFileTemp(`${BASE_URL_PROD}archivo/${data.photo}`);
     } else {
       setFileName("");
       setFileTemp("");
     }
     modalImg();
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      setFile(null);
+      setFileName("");
+      setFileNameTemp(null);
+      setFileTemp(null);
+    }
+  }, [isSuccess]);
 
   return (
     <Grid style={{ margin: "10px", marginTop: "-23px" }}>
@@ -930,20 +942,12 @@ const Product = () => {
               classButton="button-ppal"
               style={{ marginTop: "10px" }}
               title={idEdit ? "Actualizar" : "Aceptar"}
-              disable={
-                mutationSaveProduct.isPending || mutationUpdateProduct.isPending ? true : false
-              }
+              disable={isPendingSaveProduct || mutationUpdateProduct.isPending ? true : false}
               icon={
                 <FontAwesomeIcon
                   style={{ marginRight: "7px" }}
-                  icon={
-                    mutationSaveProduct.isPending || mutationUpdateProduct.isPending
-                      ? faRotate
-                      : faSave
-                  }
-                  spin={
-                    mutationSaveProduct.isPending || mutationUpdateProduct.isPending ? true : false
-                  }
+                  icon={isPendingSaveProduct || mutationUpdateProduct.isPending ? faRotate : faSave}
+                  spin={isPendingSaveProduct || mutationUpdateProduct.isPending ? true : false}
                 />
               }
               handle={productFormik.handleSubmit}
@@ -971,7 +975,7 @@ const Product = () => {
                 {!fileTemp && productFormik.values.photo ? (
                   <img
                     className="no-image"
-                    src={`${BASE_URL_PROD}/product/photo/${productFormik?.values?.photo}`}
+                    src={`${BASE_URL_PROD}archivo/${productFormik?.values?.photo}`}
                     alt=""
                   />
                 ) : fileTemp ? (

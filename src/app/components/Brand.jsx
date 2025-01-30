@@ -3,6 +3,7 @@ import { Box, styled } from "@mui/material";
 import { Span } from "./Typography";
 import { MatxLogo } from "app/components";
 import useSettings from "app/hooks/useSettings";
+import { GetGeneralConfigurations } from "app/hooks/generalConfigurations";
 
 // STYLED COMPONENTS
 const BrandRoot = styled(Box)(() => ({
@@ -13,7 +14,7 @@ const BrandRoot = styled(Box)(() => ({
 }));
 
 const StyledSpan = styled(Span)(({ mode }) => ({
-  fontSize: 18,
+  fontSize: 13,
   marginLeft: ".5rem",
   display: mode === "compact" ? "none" : "block"
 }));
@@ -23,12 +24,14 @@ export default function Brand({ children }) {
   const leftSidebar = settings.layout1Settings.leftSidebar;
   const { mode } = leftSidebar;
 
+  const { data: generalConfigurations } = GetGeneralConfigurations();
+
   return (
     <BrandRoot>
       <Box display="flex" alignItems="center">
         <MatxLogo />
         <StyledSpan mode={mode} className="sidenavHoverShow">
-          Boutique
+          {generalConfigurations && generalConfigurations[0]?.commerce}
         </StyledSpan>
       </Box>
 

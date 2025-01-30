@@ -85,7 +85,6 @@ const CategoryServices = () => {
             })
         },
         Cell: ({ cell }) => (
-
           <Box>
             {cell.getValue()?.toLocaleString?.("es-CO", {
               style: "currency",
@@ -249,7 +248,7 @@ const CategoryServices = () => {
         onEditingRowSave={handleUpdateCategory}
         onEditingRowCancel={rowCancel}
         enableEditing={true}
-        positionCreatingRow={creatingRowIndex}
+        onCreatingRowSave={creatingRowIndex}
         enableExpanding={false}
         columnPinning={{ left: ["mrt-row-select", "mrt-row-actions"], right: [] }}
       />

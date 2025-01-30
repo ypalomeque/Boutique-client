@@ -9,6 +9,7 @@ const AppFooter = styled(Toolbar)(() => ({
   display: "flex",
   alignItems: "center",
   minHeight: topBarHeight,
+  background: "#fff !important",
   "@media (max-width: 499px)": {
     display: "table",
     width: "100%",

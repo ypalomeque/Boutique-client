@@ -22,7 +22,7 @@ import SelectComponent from "app/components/select/SelectComponent";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { NumericFormat } from "react-number-format";
-import { BASE_URL_PROD, NO_IMAGE } from "app/utils/constant";
+import { BASE_URL_DEV, NO_IMAGE } from "app/utils/constant";
 import { Delete, Edit } from "@mui/icons-material";
 import { GetCategories } from "app/hooks/categories";
 import { deleteFileService, uploadFileService } from "app/services/filesService";
@@ -49,7 +49,7 @@ const columns2 = [
           alt="Foto"
           height={30}
           src={
-            row?.original?.photo ? `${BASE_URL_PROD}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
+            row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
           }
           loading="lazy"
           style={{ borderRadius: "50%", height: "5vh", width: "20%" }}
@@ -276,7 +276,7 @@ const Product = () => {
           alt="avatar"
           height={200}
           src={
-            row?.original?.photo ? `${BASE_URL_PROD}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
+            row?.original?.photo ? `${BASE_URL_DEV}archivo/${row?.original?.photo}` : `${NO_IMAGE}`
           }
           loading="lazy"
           style={{ borderRadius: "5%", height: "20vh", width: "25%" }}
@@ -635,7 +635,7 @@ const Product = () => {
     setIdEdit(data?._id);
     if (data?.photo) {
       setFileName(data?.photo);
-      setFileTemp(`${BASE_URL_PROD}archivo/${data.photo}`);
+      setFileTemp(`${BASE_URL_DEV}archivo/${data.photo}`);
     } else {
       setFileName("");
       setFileTemp("");
@@ -975,7 +975,7 @@ const Product = () => {
                 {!fileTemp && productFormik.values.photo ? (
                   <img
                     className="no-image"
-                    src={`${BASE_URL_PROD}archivo/${productFormik?.values?.photo}`}
+                    src={`${BASE_URL_DEV}archivo/${productFormik?.values?.photo}`}
                     alt=""
                   />
                 ) : fileTemp ? (

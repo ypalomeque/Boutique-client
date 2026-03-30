@@ -37,10 +37,15 @@
 }
 
 .img {
+
     display: flex !important;
     justify-content: center !important;
     width: 50%;
     opacity: .7;
+}
+
+.img img{
+       border-radius: 50px !important;
 }
 
 .button-form {

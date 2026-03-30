@@ -64,13 +64,13 @@ export default function MatxLogo({ className }) {
     <div>
       <img
         src={
-          `${BASE_URL_PROD}archivo/${
+          `${BASE_URL_DEV}archivo/${
             generalConfigurations?.length > 0 && generalConfigurations[0].logo
           }`
-            ? `${BASE_URL_PROD}archivo/${
+            ? `${BASE_URL_DEV}archivo/${
                 generalConfigurations?.length > 0 && generalConfigurations[0].noLogo
               }`
-            : `${BASE_URL_PROD}archivo/${
+            : `${BASE_URL_DEV}archivo/${
                 generalConfigurations?.length > 0 && generalConfigurations[0].noLogo
               }`
         }

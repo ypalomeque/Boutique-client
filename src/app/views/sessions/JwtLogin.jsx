@@ -9,7 +9,7 @@ import { Form, FormGroup, Input, Label } from "reactstrap";
 import { ButtonComponent } from "app/components/Button/ButtonComponent";
 
 import "./logincss.css";
-import { BASE_URL_PROD, MAILFORMAT } from "app/utils/constant";
+import { BASE_URL_DEV, MAILFORMAT } from "app/utils/constant";
 import { NotificationAlert } from "app/components/NotificationAlert/Notification";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -80,13 +80,13 @@ export default function JwtLogin() {
                 <div className="img">
                   <img
                     src={
-                      `${BASE_URL_PROD}archivo/${
+                      `${BASE_URL_DEV}archivo/${
                         generalConfigurations && generalConfigurations[0]?.logo
                       }`
-                        ? `${BASE_URL_PROD}archivo/${
+                        ? `${BASE_URL_DEV}archivo/${
                             generalConfigurations && generalConfigurations[0]?.noLogo
                           }`
-                        : `${BASE_URL_PROD}archivo/${
+                        : `${BASE_URL_DEV}archivo/${
                             generalConfigurations && generalConfigurations[0]?.noLogo
                           }}`
                     }
